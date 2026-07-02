@@ -1,46 +1,44 @@
 {
-  "name": "code-gen",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@octokit/plugin-rest-endpoint-methods": "^13.3.1",
-    "@types/bun": "latest",
-    "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.30.5",
-    "tsx": "^4.19.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "name": "aura-ai-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": " Automatically generate, review code from Github Issues & Pull Requests",
+  "author": "Yashraj Narke",
+  "license": "ISC",
+  "homepage": "https://github.com//",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "watch":"nodemon --exec 'bun dev'",
+    "build": "tsc",
+    "start": "probot run ./lib/index.js",
+    "dev": "bun src/",
+    "test": "vitest",
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.1.17",
-    "@ai-sdk/deepinfra": "^0.1.14",
-    "@ai-sdk/google": "^1.1.20",
-    "@ai-sdk/groq": "^1.1.12",
-    "@ai-sdk/mistral": "^1.1.15",
-    "@ai-sdk/openai": "^1.2.1",
-    "@openrouter/ai-sdk-provider": "^0.4.3",
-    "@opentelemetry/auto-instrumentations-node": "^0.56.1",
-    "@opentelemetry/sdk-node": "^0.57.2",
-    "@types/diff": "^7.0.1",
-    "@types/tmp": "^0.2.6",
-    "ai": "^4.1.54",
-    "axios": "^1.8.3",
-    "diff": "^7.0.0",
-    "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.0",
-    "glob": "^11.0.1",
-    "human-id": "^4.1.1",
-    "jsdiff": "^1.1.1",
-    "langsmith": "^0.3.12",
-    "node-diff3": "^3.1.2",
-    "ollama-ai-provider": "^1.2.0",
-    "pg": "^8.13.3",
-    "probot": "^13.4.4",
-    "tmp": "^0.2.3",
-    "winston": "^3.17.0"
+    "probot": "^14.3.2"
   },
-  "scripts": {
-    "dev": "bun run src/index.ts"
-  }
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.0.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260701.1",
+    "ioredis": "^5.10.1",
+    "nock": "^14.0.5",
+    "nodemon": "^3.1.14",
+    "smee-client": "^5.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "@types/pg": "8.15.1"
+  },
+  "engines": {
+    "node": "^20.18.1 || >= 22"
+  },
+  "type": "module",
+  "module": "src/index.ts"
 }
