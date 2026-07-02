@@ -4,7 +4,7 @@ import * as ai from "ai";
 import { isStepCount } from "ai";
 import { getLanguageModel } from "./factory";
 import { createDevPrompt } from "./prompt";
-import { readMultiTool } from "./tools";
+import { readMultiTool, listDirTool, grepTool, bashTool, replaceFileContentTool } from "./tools";
 import { wrapAISDK } from "langsmith/experimental/vercel";
 
 const { generateText } = wrapAISDK(ai);
@@ -25,6 +25,12 @@ const auth = await app.octokit.auth({
 });
 
 const { data: issue } = await octokit.rest.issues.get({
+  owner: process.env.OWNER_NAME!,
+  repo: process.env.REPO_NAME!,
+  issue_number: parseInt(process.env.ISSUE_ID!),
+});
+
+const {data : comments} = await octokit.rest.issues.listComments({
   owner: process.env.OWNER_NAME!,
   repo: process.env.REPO_NAME!,
   issue_number: parseInt(process.env.ISSUE_ID!),
@@ -52,9 +58,16 @@ console.log("Asking ai wtf is this");
 const agent = await generateText({
   model: getLanguageModel(),
   system: await createDevPrompt(process.env.LLM_MODEL || "default"),
-  prompt: `wat is this project about, answer the question!`,
+  prompt: `These are comments of issue:
+  Title: ${issue.title}
+  Body: ${issue.body}
+  Comments: ${comments.map(c => c.user?.login + ": " + c.body).join("\n")}`,
   tools: {
     readMulti: readMultiTool,
+    listDir: listDirTool,
+    grep: grepTool,
+    bash: bashTool,
+    replaceFileContent: replaceFileContentTool,
   },
   seed: 0,
   stopWhen: isStepCount(5000),
