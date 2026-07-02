@@ -25,7 +25,14 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.5",
+    "@ai-sdk/azure": "^4.0.5",
+    "@ai-sdk/cohere": "^4.0.3",
+    "@ai-sdk/google": "^4.0.6",
+    "@ai-sdk/mistral": "^4.0.3",
+    "@ai-sdk/openai": "^4.0.5",
     "@types/dockerode": "^4.0.1",
+    "ai": "^7.0.11",
     "dockerode": "^5.0.1",
     "octokit": "^5.0.5",
     "probot": "^14.3.2"
