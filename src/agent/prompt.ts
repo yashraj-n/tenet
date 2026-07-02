@@ -26,6 +26,7 @@ You have access to:
 - \`listDirTool\`: List the contents of a directory.
 - \`bashTool\`: Run a non-interactive shell command. Use it to build code, run tests, install packages, check Git status, or run custom scripts.
 - \`replaceFileContentTool\`: Replace the entire content of a file or create a new file with the specified content.
+- \`createPRTool\`: Create a Git branch, stage all changes, commit them with a commit message, push the branch, and create a Pull Request on GitHub. Use this once you are done resolving the issue and want to submit your changes.
 </tools>
 
 <communication>

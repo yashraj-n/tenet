@@ -3,6 +3,7 @@ import { z } from "zod";
 import { mapWithConcurrency } from "../utils";
 import { readdir } from "node:fs/promises";
 import { $ } from "bun";
+import { App } from "octokit";
 
 export const readMultiTool = tool({
   description: "Read multiple files concurrently",
@@ -90,6 +91,55 @@ export const replaceFileContentTool = tool({
     try {
       await Bun.write(filePath, content);
       return { success: true, filePath };
+    } catch (error: any) {
+      return { success: false, error: error.message || String(error) };
+    }
+  },
+});
+
+export const createPRTool = tool({
+  description:
+    "Create a GitHub commit with the staged changes, push it to a new branch, and create a Pull Request on GitHub",
+  inputSchema: z.object({
+    title: z.string().min(1, "PR title cannot be empty"),
+    description: z.string().min(1, "PR description cannot be empty"),
+    commitMessage: z.string().min(1, "Commit message cannot be empty"),
+  }),
+  execute: async ({ title, description, commitMessage }) => {
+    try {
+      const branchName = `fix/issue-${process.env.ISSUE_ID || "patch"}-${Date.now()}`;
+      const owner = process.env.OWNER_NAME!;
+      const repo = process.env.REPO_NAME!;
+
+      await $`git config user.name "Aura AI Agent"`.quiet();
+      await $`git config user.email "agent@localhost"`.quiet();
+      await $`git add .`.quiet();
+      await $`git checkout -b ${branchName}`.quiet();
+      await $`git commit -m ${commitMessage}`.quiet();
+      await $`git push origin ${branchName}`.quiet();
+
+      const app = new App({
+        appId: process.env.APP_ID!,
+        privateKey: process.env.PRIVATE_KEY!,
+      });
+      const octokit = await app.getInstallationOctokit(parseInt(process.env.INSTALLATION_ID!));
+
+      const { data: repository } = await octokit.rest.repos.get({ owner, repo });
+
+      const prResponse = await octokit.rest.pulls.create({
+        owner,
+        repo,
+        title,
+        body: description,
+        head: branchName,
+        base: repository.default_branch,
+      });
+
+      return {
+        success: true,
+        pullRequestUrl: prResponse.data.html_url,
+        branchName,
+      };
     } catch (error: any) {
       return { success: false, error: error.message || String(error) };
     }
