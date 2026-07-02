@@ -1,6 +1,6 @@
 # aura-ai-agent
 
-> A GitHub App built with [Probot](https://github.com/probot/probot) that  Automatically generate, review code from Github Issues &amp; Pull Requests
+> A GitHub App built with [Probot](https://github.com/probot/probot) that Automatically generate, review code from Github Issues &amp; Pull Requests
 
 ## Setup
 
