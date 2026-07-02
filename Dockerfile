@@ -2,7 +2,7 @@ FROM oven/bun:1 AS base
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y git && \
+    apt-get install -y git ripgrep && \
     rm -rf /var/lib/apt/lists/*
 
 FROM base AS install
