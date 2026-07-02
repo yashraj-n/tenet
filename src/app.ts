@@ -1,30 +1,21 @@
-import { createServer, createProbot } from "./config/server";
-import { initializeApp } from "./app/init";
-import { logger } from "./logger";
-import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
+import { Probot } from "probot";
 
-export let authenticatedUser:
-    | RestEndpointMethodTypes["apps"]["getAuthenticated"]["response"]
-    | null = null;
+export default (app: Probot) => {
+  app.on("issues.opened", async (context) => {
+    const issueComment = context.issue({
+      body: "Thanks for opening this issue!",
+    });
+    await context.octokit.rest.issues.createComment(issueComment);
+  });
 
-async function startServer() {
-    try {
-        const server = createServer();
-        await server.load(initializeApp);
+  app.on("issue_comment", async (ctx) =>{
+    const comment = ctx.payload.comment.body;
+    app.log.info(`Received comment: ${comment}`);
+    console.log(`Received comment: ${comment}`);
+  });
+  // For more information on building apps:
+  // https://probot.github.io/docs/
 
-        const probot = createProbot();
-        const octokit = await probot.auth();
-        const appInfo = await octokit.apps.getAuthenticated();
-        authenticatedUser = appInfo;
-
-        logger.info(
-            `Starting server authenticated as GitHub App: ${appInfo.data?.name}`
-        );
-        await server.start();
-    } catch (error) {
-        logger.error("Failed to start server:", error);
-        process.exit(1);
-    }
-}
-
-startServer();
+  // To get your app running against GitHub, see:
+  // https://probot.github.io/docs/development/
+};
