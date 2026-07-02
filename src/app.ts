@@ -19,9 +19,9 @@ const app = (app: Probot) => {
       content: "eyes",
     });
     await requestContainer(
+      ctx.payload.repository.owner.login,
       ctx.payload.repository.name,
       ctx.payload.issue.number.toString(),
-      ctx.payload.repository.owner.login,
       ctx.payload.installation?.id.toString() ?? "",
     );
   });

@@ -4,7 +4,6 @@ const repoName = process.env.REPO_NAME;
 const issueId = process.env.ISSUE_ID;
 const ownerName = process.env.OWNER_NAME;
 
-
 const app = new App({
   appId: process.env.APP_ID!,
   privateKey: process.env.PRIVATE_KEY!,
@@ -22,9 +21,6 @@ console.log(`Issue ID: ${issueId}`);
 console.log(`Owner Name: ${ownerName}`);
 console.log(`Issue Title: ${issue.title}`);
 console.log(`Issue Body: ${issue.body}`);
-
-
-
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
