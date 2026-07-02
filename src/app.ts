@@ -1,21 +1,23 @@
 import { Probot } from "probot";
+import { run } from "probot";
 
-export default (app: Probot) => {
+const app = (app: Probot) => {
   app.on("issues.opened", async (context) => {
     const issueComment = context.issue({
-      body: "Thanks for opening this issue!",
+      body: `Heya @${context.payload.issue.user?.login ?? ""}, aura-ai-agent is installed, send /build to automatically resolve this issue and send a PR`,
     });
     await context.octokit.rest.issues.createComment(issueComment);
   });
 
-  app.on("issue_comment", async (ctx) =>{
+  app.on("issue_comment", async (ctx) => {
     const comment = ctx.payload.comment.body;
-    app.log.info(`Received comment: ${comment}`);
-    console.log(`Received comment: ${comment}`);
+    if (comment !== "/build") return
+    await ctx.octokit.rest.reactions.createForIssueComment({
+      ...ctx.repo(),
+      comment_id: ctx.payload.comment.id,
+      content: "eyes",
+    });
   });
-  // For more information on building apps:
-  // https://probot.github.io/docs/
-
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
 };
+
+run(app);

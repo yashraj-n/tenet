@@ -12,12 +12,16 @@
     "probot-app"
   ],
   "scripts": {
-    "watch":"nodemon --exec 'bun dev'",
+    "watch": "nodemon --exec 'bun dev'",
     "build": "tsc",
     "start": "probot run ./lib/index.js",
-    "dev": "bun src/",
+    "dev": "bun src/app.ts",
     "test": "vitest",
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   },
   "dependencies": {
     "probot": "^14.3.2"
@@ -29,6 +33,8 @@
     "ioredis": "^5.10.1",
     "nock": "^14.0.5",
     "nodemon": "^3.1.14",
+    "oxfmt": "^0.57.0",
+    "oxlint": "^1.72.0",
     "smee-client": "^5.0.0",
     "typescript": "^6.0.3",
     "vitest": "^3.2.4"
