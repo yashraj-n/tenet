@@ -5,6 +5,7 @@ import { createGoogle } from "@ai-sdk/google";
 import { createAzure } from "@ai-sdk/azure";
 import { createCohere } from "@ai-sdk/cohere";
 import { createMistral } from "@ai-sdk/mistral";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 export function getLanguageModel(): LanguageModel {
   const provider = (process.env.LLM_PROVIDER || "openai").trim().toLowerCase();
@@ -52,9 +53,14 @@ export function getLanguageModel(): LanguageModel {
         baseURL: process.env.MISTRAL_BASE_URL,
       })(modelId);
 
+    case "openrouter":
+      return createOpenRouter({
+        apiKey: process.env.OPENROUTER_API_KEY,
+      })(modelId);
+
     default:
       throw new Error(
-        `Unsupported LLM_PROVIDER "${provider}". Supported providers: openai, anthropic, google, azure, cohere, mistral.`,
+        `Unsupported LLM_PROVIDER "${provider}". Supported providers: openai, anthropic, google, azure, cohere, mistral, openrouter.`,
       );
   }
 }
