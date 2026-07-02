@@ -31,6 +31,7 @@
     "@ai-sdk/google": "^4.0.6",
     "@ai-sdk/mistral": "^4.0.3",
     "@ai-sdk/openai": "^4.0.5",
+    "@openrouter/ai-sdk-provider": "^2.10.0",
     "@types/dockerode": "^4.0.1",
     "ai": "^7.0.11",
     "dockerode": "^5.0.1",
