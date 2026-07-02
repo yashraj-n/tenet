@@ -13,8 +13,6 @@ RUN cd /temp/pkg && bun install --frozen-lockfile --production
 FROM base AS release
 
 
-ENV IS_AGENT=true
-
 COPY --from=install /temp/pkg/node_modules node_modules
 COPY . .
 
