@@ -1,6 +1,10 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
 
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
 FROM base AS install
 RUN mkdir -p /temp/pkg
 COPY package.json bun.lock /temp/pkg/
