@@ -2,11 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Github, ArrowLeft } from "lucide-react";
 
+import { authClient } from "#/lib/auth-client";
+
 export const Route = createFileRoute("/login")({
   component: LoginComponent,
 });
 
 function LoginComponent() {
+  const handleGithubLogin = async () => {
+    await authClient.signIn.social({
+      provider: "github",
+      callbackURL: "/dashboard",
+    });
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-background px-6 noise-overlay">
       {/* Ambient glow */}
@@ -35,10 +44,8 @@ function LoginComponent() {
           </div>
 
           <Button
-            className="w-full bg-foreground hover:bg-foreground/90 text-background h-12 text-sm font-medium gap-2.5 transition-all duration-300 hover-lift"
-            onClick={() => {
-              console.log("GitHub Login click");
-            }}
+            className="w-full bg-foreground hover:bg-foreground/90 text-background h-12 text-sm font-medium gap-2.5 transition-all duration-300 hover-lift cursor-pointer"
+            onClick={handleGithubLogin}
           >
             <Github className="w-[18px] h-[18px]" />
             Continue with GitHub

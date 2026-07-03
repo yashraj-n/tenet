@@ -4,11 +4,14 @@
   "type": "module",
   "module": "index.ts",
   "dependencies": {
+    "@better-auth/prisma-adapter": "^1.6.23",
     "@fastify/cors": "^11.2.0",
+    "@prisma/client": "^6.0.0",
     "@trpc/client": "^11.18.0",
     "@trpc/server": "^11.18.0",
     "better-auth": "^1.6.23",
     "fastify": "^5.9.0",
+    "prisma": "^6.0.0",
     "superjson": "^2.2.6"
   },
   "devDependencies": {

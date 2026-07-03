@@ -8,215 +8,197 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as LoginRouteImport } from "./routes/login";
-import { Route as DashboardRouteImport } from "./routes/_dashboard";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as DashboardDashboardIndexRouteImport } from "./routes/_dashboard/dashboard.index";
-import { Route as ApiTrpcSplatRouteImport } from "./routes/api.trpc.$";
-import { Route as ApiAuthSplatRouteImport } from "./routes/api/auth/$";
-import { Route as DashboardDashboardRunsRouteImport } from "./routes/_dashboard/dashboard.runs";
-import { Route as DashboardDashboardRepoIdRouteImport } from "./routes/_dashboard/dashboard.$repoId";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardDashboardIndexRouteImport } from './routes/_dashboard/dashboard.index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DashboardDashboardRunsRouteImport } from './routes/_dashboard/dashboard.runs'
+import { Route as DashboardDashboardRepoIdRouteImport } from './routes/_dashboard/dashboard.$repoId'
 
 const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
-  id: "/_dashboard",
+  id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardDashboardIndexRoute = DashboardDashboardIndexRouteImport.update({
-  id: "/dashboard/",
-  path: "/dashboard/",
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => DashboardRoute,
-} as any);
-const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
-  id: "/api/trpc/$",
-  path: "/api/trpc/$",
-  getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardDashboardRunsRoute = DashboardDashboardRunsRouteImport.update({
-  id: "/dashboard/runs",
-  path: "/dashboard/runs",
+  id: '/dashboard/runs',
+  path: '/dashboard/runs',
   getParentRoute: () => DashboardRoute,
-} as any);
-const DashboardDashboardRepoIdRoute = DashboardDashboardRepoIdRouteImport.update({
-  id: "/dashboard/$repoId",
-  path: "/dashboard/$repoId",
-  getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
+const DashboardDashboardRepoIdRoute =
+  DashboardDashboardRepoIdRouteImport.update({
+    id: '/dashboard/$repoId',
+    path: '/dashboard/$repoId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/login": typeof LoginRoute;
-  "/dashboard/$repoId": typeof DashboardDashboardRepoIdRoute;
-  "/dashboard/runs": typeof DashboardDashboardRunsRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/trpc/$": typeof ApiTrpcSplatRoute;
-  "/dashboard/": typeof DashboardDashboardIndexRoute;
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
+  '/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/': typeof DashboardDashboardIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/login": typeof LoginRoute;
-  "/dashboard/$repoId": typeof DashboardDashboardRepoIdRoute;
-  "/dashboard/runs": typeof DashboardDashboardRunsRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/trpc/$": typeof ApiTrpcSplatRoute;
-  "/dashboard": typeof DashboardDashboardIndexRoute;
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
+  '/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard': typeof DashboardDashboardIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/_dashboard": typeof DashboardRouteWithChildren;
-  "/login": typeof LoginRoute;
-  "/_dashboard/dashboard/$repoId": typeof DashboardDashboardRepoIdRoute;
-  "/_dashboard/dashboard/runs": typeof DashboardDashboardRunsRoute;
-  "/api/auth/$": typeof ApiAuthSplatRoute;
-  "/api/trpc/$": typeof ApiTrpcSplatRoute;
-  "/_dashboard/dashboard/": typeof DashboardDashboardIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_dashboard/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
+  '/_dashboard/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_dashboard/dashboard/': typeof DashboardDashboardIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/login"
-    | "/dashboard/$repoId"
-    | "/dashboard/runs"
-    | "/api/auth/$"
-    | "/api/trpc/$"
-    | "/dashboard/";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/login'
+    | '/dashboard/$repoId'
+    | '/dashboard/runs'
+    | '/api/auth/$'
+    | '/dashboard/'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/login"
-    | "/dashboard/$repoId"
-    | "/dashboard/runs"
-    | "/api/auth/$"
-    | "/api/trpc/$"
-    | "/dashboard";
+    | '/'
+    | '/login'
+    | '/dashboard/$repoId'
+    | '/dashboard/runs'
+    | '/api/auth/$'
+    | '/dashboard'
   id:
-    | "__root__"
-    | "/"
-    | "/_dashboard"
-    | "/login"
-    | "/_dashboard/dashboard/$repoId"
-    | "/_dashboard/dashboard/runs"
-    | "/api/auth/$"
-    | "/api/trpc/$"
-    | "/_dashboard/dashboard/";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/_dashboard'
+    | '/login'
+    | '/_dashboard/dashboard/$repoId'
+    | '/_dashboard/dashboard/runs'
+    | '/api/auth/$'
+    | '/_dashboard/dashboard/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  DashboardRoute: typeof DashboardRouteWithChildren;
-  LoginRoute: typeof LoginRoute;
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute;
-  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute;
+  IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/login": {
-      id: "/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof LoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard": {
-      id: "/_dashboard";
-      path: "";
-      fullPath: "/";
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/dashboard/": {
-      id: "/_dashboard/dashboard/";
-      path: "/dashboard";
-      fullPath: "/dashboard/";
-      preLoaderRoute: typeof DashboardDashboardIndexRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/api/trpc/$": {
-      id: "/api/trpc/$";
-      path: "/api/trpc/$";
-      fullPath: "/api/trpc/$";
-      preLoaderRoute: typeof ApiTrpcSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/auth/$": {
-      id: "/api/auth/$";
-      path: "/api/auth/$";
-      fullPath: "/api/auth/$";
-      preLoaderRoute: typeof ApiAuthSplatRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_dashboard/dashboard/runs": {
-      id: "/_dashboard/dashboard/runs";
-      path: "/dashboard/runs";
-      fullPath: "/dashboard/runs";
-      preLoaderRoute: typeof DashboardDashboardRunsRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/_dashboard/dashboard/$repoId": {
-      id: "/_dashboard/dashboard/$repoId";
-      path: "/dashboard/$repoId";
-      fullPath: "/dashboard/$repoId";
-      preLoaderRoute: typeof DashboardDashboardRepoIdRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/dashboard/': {
+      id: '/_dashboard/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardDashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/dashboard/runs': {
+      id: '/_dashboard/dashboard/runs'
+      path: '/dashboard/runs'
+      fullPath: '/dashboard/runs'
+      preLoaderRoute: typeof DashboardDashboardRunsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/dashboard/$repoId': {
+      id: '/_dashboard/dashboard/$repoId'
+      path: '/dashboard/$repoId'
+      fullPath: '/dashboard/$repoId'
+      preLoaderRoute: typeof DashboardDashboardRepoIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
-  DashboardDashboardRepoIdRoute: typeof DashboardDashboardRepoIdRoute;
-  DashboardDashboardRunsRoute: typeof DashboardDashboardRunsRoute;
-  DashboardDashboardIndexRoute: typeof DashboardDashboardIndexRoute;
+  DashboardDashboardRepoIdRoute: typeof DashboardDashboardRepoIdRoute
+  DashboardDashboardRunsRoute: typeof DashboardDashboardRunsRoute
+  DashboardDashboardIndexRoute: typeof DashboardDashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRepoIdRoute: DashboardDashboardRepoIdRoute,
   DashboardDashboardRunsRoute: DashboardDashboardRunsRoute,
   DashboardDashboardIndexRoute: DashboardDashboardIndexRoute,
-};
+}
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(DashboardRouteChildren);
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { createStart } from "@tanstack/react-start";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }
