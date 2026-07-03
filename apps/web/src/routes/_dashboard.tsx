@@ -1,13 +1,133 @@
-import { useState } from "react";
-import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { createFileRoute, Outlet, Link, useLocation, useRouter } from "@tanstack/react-router";
 import { Search, Plus, LogOut, ChevronRight, FolderGit2, Terminal } from "lucide-react";
-import { mockRepos } from "@/lib/mock-data";
+import { mockRepos, mockQuota } from "@/lib/mock-data";
 import { RepoItem } from "@/components/dashboard/repo-item";
 import { QuotaBadge } from "@/components/dashboard/quota-badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/_dashboard")({
   component: DashboardLayout,
 });
+
+function UserNav() {
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+  const [quota, setQuota] = useState(mockQuota);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const stored = localStorage.getItem("tenet_quota");
+      if (stored) {
+        setQuota(JSON.parse(stored));
+      } else {
+        setQuota(mockQuota);
+      }
+    };
+
+    handleUpdate();
+    window.addEventListener("tenet_quota_update", handleUpdate);
+    return () => window.removeEventListener("tenet_quota_update", handleUpdate);
+  }, []);
+
+  if (isPending) {
+    return <div className="h-9 w-9 rounded-full bg-foreground/10 animate-pulse" />;
+  }
+
+  if (!session?.user) {
+    return (
+      <Link
+        to="/login"
+        className="flex items-center gap-2 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors py-1.5 px-3 rounded-full hover:bg-foreground/5"
+      >
+        Sign In
+      </Link>
+    );
+  }
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.navigate({ to: "/login" });
+  };
+
+  const initial = session.user.name?.charAt(0).toUpperCase() || "U";
+  const limit = quota.limit || 2;
+  const used = quota.used || 0;
+  const remaining = Math.max(0, limit - used);
+  const percentage = Math.max(0, Math.min(1, remaining / limit));
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="relative h-9 w-9 rounded-full cursor-pointer focus:outline-none flex items-center justify-center group">
+          {/* Circular Progress Ring */}
+          <svg className="absolute inset-0 size-full -rotate-90">
+            {/* Track */}
+            <circle cx="18" cy="18" r="15" className="stroke-border/40 fill-none stroke-[2]" />
+            {/* Indicator */}
+            <circle
+              cx="18"
+              cy="18"
+              r="15"
+              className={`fill-none stroke-[2] transition-all duration-300 ${
+                remaining === 0 ? "stroke-red-400/80" : "stroke-emerald-400"
+              }`}
+              strokeDasharray={94.2}
+              strokeDashoffset={94.2 * (1 - percentage)}
+            />
+          </svg>
+
+          {/* Avatar (inset inside the ring) */}
+          <Avatar className="h-7 w-7">
+            {session.user.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
+            <AvatarFallback className="bg-muted text-[10px] font-semibold text-foreground/80 flex items-center justify-center">
+              {initial}
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none text-foreground">
+                {session.user.name}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+            </div>
+
+            {/* Runs left display */}
+            <div className="pt-1.5 border-t border-border/40 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
+              <span>Runs remaining:</span>
+              <span
+                className={`font-semibold ${remaining === 0 ? "text-red-400" : "text-emerald-400"}`}
+              >
+                {remaining} / {limit}
+              </span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-red-400 focus:text-red-400 cursor-pointer flex items-center"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sign Out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function DashboardLayout() {
   const location = useLocation();
@@ -39,17 +159,7 @@ function DashboardLayout() {
         </div>
 
         <div className="flex items-center gap-4">
-          <QuotaBadge />
-
-          <div className="h-6 w-px bg-border" />
-
-          <Link
-            to="/login"
-            className="flex items-center gap-2 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors py-1.5 px-3 rounded-full hover:bg-foreground/5"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </Link>
+          <UserNav />
         </div>
       </nav>
 
