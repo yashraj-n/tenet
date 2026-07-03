@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
-const words = ["automate", "delegate", "execute", "scale"];
+const words = ["issues", "bugs", "features", "todos"];
 
 function BlurWord({ word, trigger }: { word: string; trigger: number }) {
   const letters = word.split("");
@@ -168,7 +171,7 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12 py-32 lg:py-40">
-        <div className="lg:max-w-[55%]">
+        <div className="lg:max-w-[65%]">
           {/* Eyebrow */}
           <div
             className={`mb-8 transition-all duration-700 ${
@@ -177,25 +180,66 @@ export function HeroSection() {
           >
             <span className="inline-flex items-center gap-3 text-sm font-mono text-white/60">
               <span className="w-8 h-px bg-white/30" />
-              Autonomous AI agents for distributed computing
+              Open-source AI agent for GitHub
             </span>
           </div>
 
           {/* Main headline */}
-          <div className="mb-12">
+          <div className="mb-8">
             <h1
-              className={`text-left text-[clamp(2rem,6vw,7rem)] font-display leading-[0.92] tracking-tight text-white transition-all duration-1000 ${
+              className={`text-left text-[clamp(2rem,5vw,5.5rem)] font-display leading-[0.92] tracking-tight text-white transition-all duration-1000 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <span className="block whitespace-nowrap">Distributed compute,</span>
-              <span className="block whitespace-nowrap">
-                agents that{" "}
-                <span className="relative inline-block">
+              <span className="block">AI that automatically</span>
+              <span className="block">
+                resolves your{" "}
+                <span className="relative inline-block text-[#eca8d6]">
                   <BlurWord word={words[wordIndex]} trigger={wordIndex} />
                 </span>
               </span>
             </h1>
+          </div>
+
+          {/* Description */}
+          <p
+            className={`text-lg lg:text-xl text-white/60 leading-relaxed mb-12 transition-all duration-1000 delay-100 max-w-2xl ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
+            Tenet is an open-source GitHub App that clones your repository, analyzes issues, makes
+            codebase edits, runs tests, and pushes pull requests automatically in a secure
+            container.
+          </p>
+
+          {/* CTA Buttons */}
+          <div
+            className={`flex flex-wrap items-center gap-4 mb-16 transition-all duration-1000 delay-200 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
+            <Link to="/login">
+              <Button
+                size="lg"
+                className="rounded-full bg-white hover:bg-white/90 text-black px-8 h-14 text-base"
+              >
+                Get Started
+              </Button>
+            </Link>
+            <a
+              href="https://github.com/yashraj-n/aura-ai-agent"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 h-14 text-base gap-2"
+              >
+                <Github className="w-5 h-5" />
+                Star on GitHub
+              </Button>
+            </a>
           </div>
         </div>
       </div>
@@ -208,9 +252,9 @@ export function HeroSection() {
       >
         <div className="max-w-[1400px] mx-auto flex items-start gap-10 lg:gap-20">
           {[
-            { value: "3500+", label: "autonomous agents active" },
-            { value: "99.7%", label: "distributed uptime" },
-            { value: "<50ms", label: "execution latency" },
+            { value: "Open Source", label: "ISC Licensed" },
+            { value: "7+", label: "LLM providers supported" },
+            { value: "Sandboxed", label: "runs securely in Docker" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-2">
               <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>

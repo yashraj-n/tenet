@@ -3,10 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 
 const regions = [
-  { name: "North America", nodes: 12, status: "operational" },
-  { name: "Europe", nodes: 8, status: "operational" },
-  { name: "Asia Pacific", nodes: 6, status: "operational" },
-  { name: "South America", nodes: 3, status: "operational" },
+  { name: "Docker Container", nodes: "One-command deployment", status: "sandboxed" },
+  { name: "Bun Runtime", nodes: "Modern JS/TS engine", status: "optimized" },
+  { name: "Probot App", nodes: "GitHub API framework", status: "native" },
+  { name: "Vercel AI SDK", nodes: "7+ LLM providers", status: "multi-model" },
 ];
 
 export function InfrastructureSection() {
@@ -35,8 +35,6 @@ export function InfrastructureSection() {
 
   return (
     <section id="infra" ref={sectionRef} className="relative py-32 lg:py-40 overflow-hidden">
-      {/* Background accent — retiré, remplacé par l'image sphère */}
-
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="mb-20">
@@ -46,7 +44,7 @@ export function InfrastructureSection() {
             }`}
           >
             <span className="w-12 h-px bg-foreground/20" />
-            Global infrastructure
+            Infrastructure
           </span>
 
           <div className="grid lg:grid-cols-[auto_1fr] gap-8 lg:gap-16 items-stretch">
@@ -66,13 +64,13 @@ export function InfrastructureSection() {
             {/* Titre + description empilés */}
             <div className="flex flex-col justify-center">
               <h2
-                className={`text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.9] transition-all duration-1000 ${
+                className={`text-6xl md:text-7xl lg:text-[100px] font-display tracking-tight leading-[0.9] transition-all duration-1000 ${
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
               >
-                Global by
+                Your infra.
                 <br />
-                <span className="text-muted-foreground">default.</span>
+                <span className="text-muted-foreground">Your keys.</span>
               </h2>
 
               <p
@@ -80,8 +78,8 @@ export function InfrastructureSection() {
                   isVisible ? "opacity-100" : "opacity-0"
                 }`}
               >
-                Your agents run on distributed infrastructure across 29 regions. Sub-50ms latency to
-                99% of the world.
+                Tenet runs entirely on your own infrastructure. Bring your own API keys—no
+                proprietary data ever leaves your control.
               </p>
             </div>
           </div>
@@ -151,11 +149,12 @@ export function InfrastructureSection() {
 
             <div className="relative z-10">
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-8xl lg:text-[10rem] font-display leading-none">29</span>
-                <span className="text-2xl text-muted-foreground">regions</span>
+                <span className="text-8xl lg:text-[10rem] font-display leading-none">7+</span>
+                <span className="text-2xl text-muted-foreground">providers</span>
               </div>
               <p className="text-muted-foreground max-w-md">
-                Compute nodes distributed globally for maximum redundancy and minimum latency.
+                Configure OpenAI, Anthropic, Gemini, Mistral, and more dynamically using environment
+                variables.
               </p>
             </div>
           </div>
@@ -167,8 +166,8 @@ export function InfrastructureSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <span className="text-5xl lg:text-6xl font-display">99.99%</span>
-              <span className="block text-sm text-muted-foreground mt-2">Uptime SLA</span>
+              <span className="text-5xl lg:text-6xl font-display">100%</span>
+              <span className="block text-sm text-muted-foreground mt-2">Self-Hosted / BYOK</span>
             </div>
 
             <div
@@ -176,8 +175,10 @@ export function InfrastructureSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <span className="text-5xl lg:text-6xl font-display">&lt;50ms</span>
-              <span className="block text-sm text-muted-foreground mt-2">Global latency</span>
+              <span className="text-5xl lg:text-6xl font-display">AES-256</span>
+              <span className="block text-sm text-muted-foreground mt-2">
+                Database Key Encryption
+              </span>
             </div>
           </div>
         </div>
@@ -208,7 +209,7 @@ export function InfrastructureSection() {
                 </span>
               </div>
               <span className="font-medium block mb-1">{region.name}</span>
-              <span className="text-sm text-muted-foreground">{region.nodes} nodes</span>
+              <span className="text-sm text-muted-foreground">{region.nodes}</span>
             </div>
           ))}
         </div>

@@ -5,42 +5,44 @@ import { useEffect, useRef, useState } from "react";
 const steps = [
   {
     number: "01",
-    title: "Define",
-    subtitle: "your agent",
+    title: "Install the app",
+    subtitle: "on GitHub",
     description:
-      "Describe what your agent should do. Set its capabilities, constraints, and goals in natural language or code.",
-    code: `const researcher = new Agent({
-  role: 'Research Analyst',
-  capabilities: ['web', 'docs', 'api'],
-  memory: true,
-  autonomy: 'full'
-})`,
+      "Install the Tenet GitHub App on your repository. Configure permissions to allow contents:write, issues:write, and pull_requests:write.",
+    code: `# Clone the repo
+git clone https://github.com/yashraj-n/aura-ai-agent.git tenet
+cd tenet
+
+# Install dependencies and setup environment variables
+bun install
+cp packages/agent/.env.example packages/agent/.env
+# Fill in your APP_ID, PRIVATE_KEY, and LLM provider credentials`,
   },
   {
     number: "02",
-    title: "Assign",
-    subtitle: "the task",
+    title: "Comment /build",
+    subtitle: "on any issue",
     description:
-      "Give your agent a mission. It breaks down complex tasks into steps and executes them autonomously.",
-    code: `await researcher.execute({
-  task: 'Analyze competitor pricing',
-  sources: ['public-data', 'news'],
-  output: 'structured-report',
-  deadline: '2h'
-})`,
+      "When a bug arises or a new feature is requested, open a GitHub issue and post a comment with /build. The app will immediately trigger.",
+    code: `# Create a GitHub issue explaining the task
+# Example comment on issue #42:
+/build
+
+# Tenet spawns a docker container securely:
+# docker run -e REPO_NAME=tenet -e ISSUE_ID=42 agent-pr-image`,
   },
   {
     number: "03",
-    title: "Monitor",
-    subtitle: "& scale",
+    title: "Merge the PR",
+    subtitle: "upon validation",
     description:
-      "Track progress in real-time. Spin up more agents as needed. Pay only for compute used.",
-    code: `optimus.dashboard({
-  agents: [researcher],
-  metrics: ['tasks', 'latency', 'cost'],
-  alerts: true
-})
-// 847 tasks completed today`,
+      "Tenet runs in a sandboxed Docker container, edits the code, runs validation checks, and opens a Pull Request. Review and merge it.",
+    code: `# Pull request generated automatically by Tenet AI Agent:
+# "Resolve issue #42: Fix caching logic in auth middleware"
+
+# Review the code changes, run tests, and merge:
+git checkout main
+git merge fix/issue-42`,
   },
 ];
 
@@ -64,7 +66,7 @@ export function HowItWorksSection() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % steps.length);
-    }, 6000);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -91,13 +93,13 @@ export function HowItWorksSection() {
             </div>
 
             <h2
-              className={`text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.85] transition-all duration-1000 delay-100 ${
+              className={`text-6xl md:text-7xl lg:text-[120px] font-display tracking-tight leading-[0.85] transition-all duration-1000 delay-100 ${
                 isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
               }`}
             >
-              <span className="block">Define.</span>
-              <span className="block text-white/30">Deploy.</span>
-              <span className="block text-white/10">Scale.</span>
+              <span className="block">Install.</span>
+              <span className="block text-white/30">Trigger.</span>
+              <span className="block text-white/10">Ship.</span>
             </h2>
           </div>
 
@@ -171,6 +173,17 @@ export function HowItWorksSection() {
         </div>
 
         {/* Code Preview - Large terminal */}
+        <div className="mt-8 bg-black border border-white/10 p-6 lg:p-8 rounded-2xl relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-3 h-3 rounded-full bg-red-500/80" />
+            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+            <span className="w-3 h-3 rounded-full bg-green-500/80" />
+            <span className="text-xs font-mono text-white/40 ml-2">terminal — tenet</span>
+          </div>
+          <pre className="font-mono text-sm lg:text-base text-white/80 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+            <code>{steps[activeStep].code}</code>
+          </pre>
+        </div>
       </div>
 
       <style>{`
@@ -179,7 +192,7 @@ export function HowItWorksSection() {
           to { width: 100%; }
         }
         .animate-progress {
-          animation: progress 6s linear forwards;
+          animation: progress 8s linear forwards;
         }
       `}</style>
     </section>
