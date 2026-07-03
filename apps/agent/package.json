@@ -1,5 +1,5 @@
 {
-  "name": "@aura/agent",
+  "name": "@tenet/agent",
   "version": "1.0.0",
   "private": true,
   "description": "Automatically generate, review code from Github Issues & Pull Requests",

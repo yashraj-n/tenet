@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@tenet/web",
   "private": true,
   "type": "module",
   "imports": {
