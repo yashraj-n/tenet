@@ -1,7 +1,16 @@
 import Dockerode from "dockerode";
 import crypto from "crypto";
 
-const docker = new Dockerode();
+let socketPath =
+  process.env.DOCKER_SOCK_PATH && process.env.DOCKER_SOCK_PATH.trim() !== ""
+    ? process.env.DOCKER_SOCK_PATH
+    : undefined;
+
+if (socketPath && socketPath.startsWith("unix://")) {
+  socketPath = socketPath.substring(7);
+}
+
+const docker = new Dockerode({ socketPath });
 const IMAGE_NAME = "agent-pr-image";
 const CONTAINER_PREFIX = "agent-pr-container";
 
@@ -27,6 +36,6 @@ export async function requestContainer(
       `INSTALLATION_ID=${installationId}`,
     ],
   });
-
+  console.log(`Starting container ${container.id} for issue ${issueId} in repo ${owner}/${repo}`);
   await container.start();
 }
