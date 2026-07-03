@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Outlet, Link, useLocation, useRouter } from "@tanstack/react-router";
 import { Search, Plus, LogOut, ChevronRight, FolderGit2, Terminal } from "lucide-react";
-import { mockRepos, mockQuota } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../integrations/trpc/react";
 import { RepoItem } from "@/components/dashboard/repo-item";
 import { QuotaBadge } from "@/components/dashboard/quota-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,7 +23,8 @@ export const Route = createFileRoute("/_dashboard")({
 function UserNav() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const [quota, setQuota] = useState(mockQuota);
+  const defaultQuota = { limit: 2, used: 0 };
+  const [quota, setQuota] = useState(defaultQuota);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -30,7 +32,7 @@ function UserNav() {
       if (stored) {
         setQuota(JSON.parse(stored));
       } else {
-        setQuota(mockQuota);
+        setQuota(defaultQuota);
       }
     };
 
@@ -132,8 +134,10 @@ function UserNav() {
 function DashboardLayout() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const trpc = useTRPC();
+  const { data: repos = [], isLoading } = useQuery(trpc.getRepos.queryOptions());
 
-  const filteredRepos = mockRepos.filter((repo) =>
+  const filteredRepos = repos.filter((repo: any) =>
     repo.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -215,8 +219,14 @@ function DashboardLayout() {
               </span>
             </div>
 
-            {filteredRepos.length > 0 ? (
-              filteredRepos.map((repo) => <RepoItem key={repo.id} repo={repo} />)
+            {isLoading ? (
+              <div className="space-y-2 px-3 py-4">
+                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
+                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
+                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
+              </div>
+            ) : filteredRepos.length > 0 ? (
+              filteredRepos.map((repo: any) => <RepoItem key={repo.id} repo={repo} />)
             ) : (
               <div className="text-center py-8 px-4">
                 <p className="text-xs text-muted-foreground font-mono">No repositories found</p>

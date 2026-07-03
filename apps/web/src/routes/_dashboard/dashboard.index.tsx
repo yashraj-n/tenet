@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { FolderGit2, AlertCircle, Sparkles, ArrowRight } from "lucide-react";
-import { mockRepos, mockIssues, mockQuota } from "@/lib/mock-data";
+import { createFileRoute } from "@tanstack/react-router";
+import { FolderGit2, AlertCircle, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../../integrations/trpc/react";
 import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/_dashboard/dashboard/")({
@@ -8,7 +9,10 @@ export const Route = createFileRoute("/_dashboard/dashboard/")({
 });
 
 function DashboardIndex() {
-  const [quota, setQuota] = useState(mockQuota);
+  const defaultQuota = { limit: 2, used: 0 };
+  const [quota, setQuota] = useState(defaultQuota);
+  const trpc = useTRPC();
+  const { data: repos = [] } = useQuery(trpc.getRepos.queryOptions());
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -22,8 +26,8 @@ function DashboardIndex() {
     return () => window.removeEventListener("tenet_quota_update", handleUpdate);
   }, []);
 
-  const totalRepos = mockRepos.length;
-  const totalIssues = mockIssues.length;
+  const totalRepos = repos.length;
+  const totalIssues = repos.reduce((sum: number, repo: any) => sum + repo.openIssuesCount, 0);
   const remainingQuota = quota.limit - quota.used;
 
   return (

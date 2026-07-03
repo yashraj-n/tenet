@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertTriangle, ArrowRight, Sparkles } from "lucide-react";
-import { Issue, mockQuota, mockRepos, mockRuns } from "@/lib/mock-data";
+import { Issue } from "@/lib/types";
 
 interface BuildModalProps {
   issue: Issue | null;
@@ -22,7 +22,8 @@ type BuildStep = "idle" | "success" | "quota_exceeded";
 
 export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
   const [step, setStep] = useState<BuildStep>("idle");
-  const [quota, setQuota] = useState(mockQuota);
+  const defaultQuota = { limit: 2, used: 0 };
+  const [quota, setQuota] = useState(defaultQuota);
   const [customInstructions, setCustomInstructions] = useState("");
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
       if (stored) {
         setQuota(JSON.parse(stored));
       } else {
-        setQuota(mockQuota);
+        setQuota(defaultQuota);
       }
       setStep("idle");
       setCustomInstructions("");
@@ -52,18 +53,14 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
     try {
       if (storedRunsStr) {
         currentRuns = JSON.parse(storedRunsStr);
-      } else {
-        currentRuns = [...mockRuns];
       }
     } catch {
-      currentRuns = [...mockRuns];
+      currentRuns = [];
     }
-
-    const repo = mockRepos.find((r) => r.id === issue.repoId);
 
     const newRun = {
       id: `run-${Date.now()}`,
-      repoName: repo ? repo.fullName : issue.repoId,
+      repoName: issue.repoId,
       repoId: issue.repoId,
       issueNumber: issue.number,
       issueTitle: issue.title,

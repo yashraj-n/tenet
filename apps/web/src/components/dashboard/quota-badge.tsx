@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { mockQuota } from "@/lib/mock-data";
+const defaultQuota = { limit: 2, used: 0 };
 
 export function QuotaBadge() {
-  const [quota, setQuota] = useState(mockQuota);
+  const [quota, setQuota] = useState(defaultQuota);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -11,7 +11,7 @@ export function QuotaBadge() {
       if (stored) {
         setQuota(JSON.parse(stored));
       } else {
-        setQuota(mockQuota);
+        setQuota(defaultQuota);
       }
     };
 
