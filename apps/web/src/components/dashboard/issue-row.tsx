@@ -1,6 +1,6 @@
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Issue, mockRepos } from "@/lib/mock-data";
+import { Issue } from "@/lib/types";
 
 interface IssueRowProps {
   issue: Issue;
@@ -8,10 +8,7 @@ interface IssueRowProps {
 }
 
 export function IssueRow({ issue, onBuildTrigger }: IssueRowProps) {
-  const repo = mockRepos.find((r) => r.id === issue.repoId);
-  const githubLink = repo
-    ? `https://github.com/${repo.fullName}/issues/${issue.number}`
-    : `https://github.com/yashraj-n/aura-ai-agent/issues/${issue.number}`;
+  const githubLink = `https://github.com/${issue.repoId}/issues/${issue.number}`;
 
   return (
     <div className="flex items-center justify-between gap-6 p-4.5 px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300">
@@ -37,7 +34,7 @@ export function IssueRow({ issue, onBuildTrigger }: IssueRowProps) {
             </span>
           ))}
           <span className="text-[11px] text-muted-foreground/60 font-mono ml-1">
-            opened {issue.createdAt} by {issue.author}
+            opened {new Date(issue.createdAt).toLocaleDateString()} by {issue.author}
           </span>
         </div>
       </div>

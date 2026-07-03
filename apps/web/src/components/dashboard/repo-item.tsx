@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { FolderGit2, Star } from "lucide-react";
-import { Repo } from "@/lib/mock-data";
+import { Repo } from "@/lib/types";
 
 interface RepoItemProps {
   repo: Repo;

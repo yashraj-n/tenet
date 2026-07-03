@@ -10,7 +10,7 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import { mockRuns, Run } from "@/lib/mock-data";
+import { Run } from "@/lib/types";
 
 export const Route = createFileRoute("/_dashboard/dashboard/runs")({
   component: RunsPage,
@@ -25,10 +25,10 @@ function RunsPage() {
       try {
         setRuns(JSON.parse(stored));
       } catch {
-        setRuns(mockRuns);
+        setRuns([]);
       }
     } else {
-      setRuns(mockRuns);
+      setRuns([]);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createFileRoute, useParams, Link } from "@tanstack/react-router";
 import {
   FolderGit2,
@@ -10,9 +10,11 @@ import {
   Search,
   ArrowLeft,
 } from "lucide-react";
-import { mockRepos, mockIssues, Issue } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
 import { IssueRow } from "@/components/dashboard/issue-row";
 import { BuildModal } from "@/components/dashboard/build-modal";
+import { useTRPC } from "../../integrations/trpc/react";
+import type { Issue } from "@/lib/types";
 
 export const Route = createFileRoute("/_dashboard/dashboard/$repoId")({
   component: RepoDetail,
@@ -24,7 +26,29 @@ function RepoDetail() {
   const [isBuildOpen, setIsBuildOpen] = useState(false);
   const [issueFilter, setIssueFilter] = useState("");
 
-  const repo = mockRepos.find((r) => r.id === repoId);
+  const trpc = useTRPC();
+  const { data: repos, isLoading: isLoadingRepos } = useQuery(trpc.getRepos.queryOptions());
+  const repo = repos?.find((r: any) => r.id === repoId);
+
+  const [owner, name] = repo ? repo.fullName.split("/") : ["", ""];
+  const { data: issues = [], isLoading: isLoadingIssues } = useQuery({
+    ...trpc.getIssues.queryOptions({ owner, repo: name }),
+    enabled: !!repo,
+  });
+
+  const handleBuildTrigger = (issue: any) => {
+    setSelectedIssue(issue);
+    setIsBuildOpen(true);
+  };
+
+  if (isLoadingRepos) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 select-none">
+        <div className="w-8 h-8 border-2 border-foreground/10 border-t-foreground/80 rounded-full animate-spin mb-3" />
+        <p className="text-xs font-mono text-muted-foreground">Loading repository...</p>
+      </div>
+    );
+  }
 
   if (!repo) {
     return (
@@ -41,14 +65,9 @@ function RepoDetail() {
     );
   }
 
-  const repoIssues = mockIssues.filter(
-    (iss) => iss.repoId === repo.id && iss.title.toLowerCase().includes(issueFilter.toLowerCase()),
+  const repoIssues = issues.filter((iss: any) =>
+    iss.title.toLowerCase().includes(issueFilter.toLowerCase()),
   );
-
-  const handleBuildTrigger = (issue: Issue) => {
-    setSelectedIssue(issue);
-    setIsBuildOpen(true);
-  };
 
   return (
     <div className="flex-1 flex flex-col p-8 lg:p-12 max-w-5xl mx-auto w-full space-y-8">
@@ -127,9 +146,16 @@ function RepoDetail() {
           </div>
         </div>
 
-        {repoIssues.length > 0 ? (
+        {isLoadingIssues ? (
+          <div className="flex flex-col items-center justify-center py-20 select-none">
+            <div className="w-8 h-8 border-2 border-foreground/10 border-t-foreground/80 rounded-full animate-spin mb-3" />
+            <p className="text-xs font-mono text-muted-foreground animate-pulse">
+              Fetching issues from GitHub...
+            </p>
+          </div>
+        ) : repoIssues.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {repoIssues.map((issue) => (
+            {repoIssues.map((issue: any) => (
               <IssueRow key={issue.id} issue={issue} onBuildTrigger={handleBuildTrigger} />
             ))}
           </div>
