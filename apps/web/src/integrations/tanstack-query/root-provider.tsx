@@ -4,18 +4,16 @@ import superjson from "superjson";
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
-import type { TRPCRouter } from "#/integrations/trpc/router";
+import type { AppRouter } from "@tenet/server";
 import { TRPCProvider } from "#/integrations/trpc/react";
 
 function getUrl() {
-  const base = (() => {
-    if (typeof window !== "undefined") return "";
-    return `http://localhost:${process.env.PORT ?? 3000}`;
-  })();
-  return `${base}/api/trpc`;
+  const base = import.meta.env.VITE_API_URL || "http://localhost:9000";
+  const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+  return `${normalizedBase}/trpc`;
 }
 
-export const trpcClient = createTRPCClient<TRPCRouter>({
+export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchStreamLink({
       transformer: superjson,
