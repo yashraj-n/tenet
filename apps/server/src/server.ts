@@ -9,6 +9,8 @@ const server = fastify({
   },
 });
 
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 9000;
+
 server.register(fastifyTRPCPlugin, {
   prefix: "/trpc",
   trpcOptions: {
@@ -22,8 +24,9 @@ server.register(fastifyTRPCPlugin, {
 
 (async () => {
   try {
+    console.log("Listening on port", PORT);
     await server.listen({
-      port: process.env.PORT ? parseInt(process.env.PORT) : 9000,
+      port: PORT,
       host: "0.0.0.0",
     });
   } catch (err) {
