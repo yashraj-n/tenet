@@ -5,8 +5,7 @@
     "apps/*"
   ],
   "scripts": {
-    "server:dev": "cd apps/server && bun dev",
-    "server:db:generate": "cd apps/server && bun db:generate",
+    "dev": "cd apps/client && bun dev",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
