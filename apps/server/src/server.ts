@@ -1,8 +1,10 @@
 import { fastifyTRPCPlugin, type FastifyTRPCPluginOptions } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
 import cors from "@fastify/cors";
+import { toNodeHandler } from "better-auth/node";
 import { createContext } from "./context";
 import { appRouter, type AppRouter } from "./router";
+import { auth } from "./lib/auth";
 
 const server = fastify({
   routerOptions: {
@@ -10,9 +12,18 @@ const server = fastify({
   },
 });
 
+const trustedOrigins = process.env.TRUSTED_ORIGINS
+  ? process.env.TRUSTED_ORIGINS.split(",").map((origin) => origin.trim())
+  : ["http://localhost:3000"];
+
 await server.register(cors, {
-  origin: ["http://localhost:3000"],
+  origin: trustedOrigins,
   credentials: true,
+});
+
+server.all("/api/auth/*", async (req, reply) => {
+  await toNodeHandler(auth)(req.raw, reply.raw);
+  reply.sent = true;
 });
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 9000;
