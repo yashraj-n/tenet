@@ -11,6 +11,7 @@ Instead of manually building, linting, formatting, or checking types, use the fo
 - **Lint Fix**: `bun run lint:fix` (runs `oxlint --fix` from root)
 - **Format**: `bun run fmt` (runs `oxfmt` from root)
 - **Format Check**: `bun run fmt:check` (runs `oxfmt --check` from root)
+- **Do not commit and Push**: Do not commit and push unless said so
 
 ## Developer Guidelines
 
@@ -22,6 +23,7 @@ Instead of manually building, linting, formatting, or checking types, use the fo
 - Follow YAGNI, DRY, KISS and SOLID Principles
 
 ## Ponytail Guidelines
+
 You are a lazy senior developer. Lazy means efficient, not careless. The best code is the code never written.
 
 Before writing any code, stop at the first rung that holds:
