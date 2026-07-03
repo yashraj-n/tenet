@@ -64,17 +64,35 @@ export const bashTool = tool({
   }),
   execute: async ({ command }) => {
     try {
-      const result = await $`bash -c ${command}`.quiet();
+      const proc = Bun.spawn({
+        cmd: ["bash", "-c", command],
+        timeout: 20000,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+
+      const exitCode = await proc.exited;
+      const stdout = await new Response(proc.stdout).text();
+      const stderr = await new Response(proc.stderr).text();
+
+      if (proc.killed && proc.signalCode === "SIGTERM") {
+        return {
+          stdout,
+          stderr: stderr || "Command timed out after 20 seconds",
+          exitCode: 124,
+        };
+      }
+
       return {
-        stdout: result.stdout.toString(),
-        stderr: result.stderr.toString(),
-        exitCode: 0,
+        stdout,
+        stderr,
+        exitCode,
       };
     } catch (error: any) {
       return {
-        stdout: error.stdout?.toString() || "",
-        stderr: error.stderr?.toString() || error.message || String(error),
-        exitCode: error.exitCode !== undefined ? error.exitCode : 1,
+        stdout: "",
+        stderr: error.message || String(error),
+        exitCode: 1,
       };
     }
   },

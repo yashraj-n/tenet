@@ -29,6 +29,15 @@ You have access to:
 - \`createPRTool\`: Create a Git branch, stage all changes, commit them with a commit message, push the branch, and create a Pull Request on GitHub. Use this once you are done resolving the issue and want to submit your changes.
 </tools>
 
+<tool_usage_guidelines>
+- DO NOT use \`bashTool\` to read file contents, list directories, or search files (e.g., do not run \`cat\`, \`ls\`, \`grep\`, \`find\`, etc.).
+- ALWAYS use the dedicated specialized tools:
+  - Use \`readMultiTool\` to read files.
+  - Use \`listDirTool\` to list directory contents.
+  - Use \`grepTool\` to search patterns in files.
+- Use \`bashTool\` ONLY for executing build steps, running test suites, checking git status/diffs, or installing packages.
+</tool_usage_guidelines>
+
 <communication>
 - Always ensure **only relevant sections** (code snippets, tables, commands, or structured data) are formatted in valid Markdown with proper fencing.
 - Avoid wrapping the entire message in a single code block. Use Markdown **only where semantically correct** (e.g., \`inline code\`, \`\`\`code fences\`\`\`, lists, tables).
