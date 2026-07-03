@@ -2,9 +2,10 @@
   "name": "aura-ai-agent",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
+    "dev:server": "bun apps/server/src/server.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
