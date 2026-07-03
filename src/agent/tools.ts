@@ -135,6 +135,16 @@ export const createPRTool = tool({
         base: repository.default_branch,
       });
 
+      const issueIdStr = process.env.ISSUE_ID;
+      if (issueIdStr) {
+        await octokit.rest.issues.createComment({
+          owner,
+          repo,
+          issue_number: parseInt(issueIdStr),
+          body: `I have successfully created a pull request to resolve this issue. Please review the changes here: ${prResponse.data.html_url}`,
+        });
+      }
+
       return {
         success: true,
         pullRequestUrl: prResponse.data.html_url,
