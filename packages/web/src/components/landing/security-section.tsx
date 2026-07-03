@@ -6,31 +6,29 @@ import { Shield, Lock, Eye, FileCheck } from "lucide-react";
 const securityFeatures = [
   {
     icon: Shield,
-    title: "Isolated execution",
-    description: "Each agent runs in its own secure sandbox.",
-    image: "/images/isolated.jpg",
+    title: "Sandboxed execution",
+    description:
+      "Each agent run spins up an isolated Docker container, protecting your codebase and hosting environment.",
   },
   {
     icon: Lock,
-    title: "Encrypted memory",
-    description: "Data encrypted at rest and in transit.",
-    image: "/images/encrypted.jpg",
+    title: "Encrypted API keys",
+    description:
+      "Your LLM provider credentials are stored securely in your database, encrypted using industry-standard AES-256.",
   },
   {
     icon: Eye,
-    title: "Full audit trails",
-    description: "Every action logged and inspectable.",
-    image: "/images/audit.jpg",
+    title: "Minimal scoped permissions",
+    description:
+      "The GitHub App only requests minimal write permissions: contents write, issues write, and pull_requests write.",
   },
   {
     icon: FileCheck,
-    title: "Permission boundaries",
-    description: "Principle of least privilege by design.",
-    image: "/images/permissions.jpg",
+    title: "100% self-hosted privacy",
+    description:
+      "You host it yourself. No code, tokens, metadata, or logs are ever transmitted to third-party servers.",
   },
 ];
-
-const certifications = ["SOC 2", "ISO 27001", "HIPAA", "GDPR"];
 
 export function SecuritySection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -74,7 +72,7 @@ export function SecuritySection() {
 
           {/* Title — full width */}
           <h2
-            className={`text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.9] mb-12 transition-all duration-1000 ${
+            className={`text-6xl md:text-7xl lg:text-[100px] font-display tracking-tight leading-[0.9] mb-12 transition-all duration-1000 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -90,8 +88,8 @@ export function SecuritySection() {
             }`}
           >
             <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-              Your agents are powerful but constrained. Enterprise-grade security ensures they only
-              do what you allow.
+              Your agents are powerful but constrained. Open-source design gives you full control
+              and visibility over every action.
             </p>
           </div>
         </div>
@@ -100,46 +98,30 @@ export function SecuritySection() {
         <div className="grid lg:grid-cols-12 gap-6">
           {/* Large visual card */}
           <div
-            className={`lg:col-span-7 relative p-8 lg:p-12 border border-foreground/10 min-h-[400px] overflow-hidden transition-all duration-700 ${
+            className={`lg:col-span-7 relative p-8 lg:p-12 border border-foreground/10 min-h-[400px] overflow-hidden transition-all duration-700 flex flex-col justify-between ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            {/* Dynamic feature image with cross-fade — desktop only */}
-            <div className="absolute inset-0 pointer-events-none items-center justify-end hidden lg:flex">
-              {securityFeatures.map((feature, index) => (
-                <img
-                  key={feature.image}
-                  src={feature.image}
-                  alt={feature.title}
-                  className="absolute h-3/4 w-3/4 object-contain object-right transition-opacity duration-500"
-                  style={{ opacity: activeFeature === index ? 0.85 : 0 }}
-                />
-              ))}
-            </div>
-
             <div className="relative z-10">
               <span className="font-mono text-sm text-muted-foreground">Active protection</span>
               <div className="mt-8">
-                <span className="text-7xl lg:text-8xl font-display">0</span>
+                <span className="text-7xl lg:text-8xl font-display">100%</span>
                 <span className="block text-muted-foreground mt-2">
-                  Security incidents this year
+                  Code & keys run on your own infrastructure
                 </span>
               </div>
             </div>
 
-            {/* Certification badges */}
-            <div className="absolute bottom-8 left-8 right-8 flex flex-wrap gap-2">
-              {certifications.map((cert, index) => (
-                <span
-                  key={cert}
-                  className={`px-3 py-1 border border-foreground/10 text-xs font-mono text-muted-foreground transition-all duration-500 ${
-                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                  }`}
-                  style={{ transitionDelay: `${index * 100 + 300}ms` }}
-                >
-                  {cert}
-                </span>
-              ))}
+            {/* Styled badge inside card */}
+            <div className="mt-12 p-4 bg-foreground/[0.02] border border-foreground/10 rounded-lg">
+              <h4 className="text-sm font-medium mb-1 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#eca8d6]" />
+                Zero external tracking
+              </h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Tenet connects directly from your GitHub webhook server to your local Docker socket.
+                No intermediary API.
+              </p>
             </div>
           </div>
 
@@ -169,7 +151,9 @@ export function SecuritySection() {
                   </div>
                   <div>
                     <h3 className="font-medium mb-1">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
               </div>

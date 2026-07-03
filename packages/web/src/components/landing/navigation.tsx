@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Github } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const navLinks = [
-  { name: "Capabilities", href: "#features" },
-  { name: "Process", href: "#how-it-works" },
-  { name: "Infra", href: "#infra" },
-  { name: "Integrations", href: "#integrations" },
+  { name: "Features", href: "#features" },
+  { name: "How It Works", href: "#how-it-works" },
+  { name: "Providers", href: "#integrations" },
   { name: "Security", href: "#security" },
 ];
 
@@ -47,12 +47,7 @@ export function Navigation() {
             <span
               className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? "text-xl text-foreground" : "text-2xl text-white"}`}
             >
-              COMPUTE
-            </span>
-            <span
-              className={`font-mono transition-all duration-500 ${isScrolled ? "text-[10px] mt-0.5 text-muted-foreground" : "text-xs mt-1 text-white/60"}`}
-            >
-              TM
+              TENET
             </span>
           </a>
 
@@ -75,17 +70,22 @@ export function Navigation() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="#"
-              className={`transition-all duration-500 ${isScrolled ? "text-xs text-foreground/70 hover:text-foreground" : "text-sm text-white/70 hover:text-white"}`}
+              href="https://github.com/yashraj-n/aura-ai-agent"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`transition-all duration-500 flex items-center gap-2 ${isScrolled ? "text-xs text-foreground/70 hover:text-foreground" : "text-sm text-white/70 hover:text-white"}`}
             >
-              Sign in
+              <Github className="w-4 h-4" />
+              GitHub
             </a>
-            <Button
-              size="sm"
-              className={`rounded-full transition-all duration-500 ${isScrolled ? "bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs" : "bg-white hover:bg-white/90 text-black px-6"}`}
-            >
-              Deploy agent
-            </Button>
+            <Link to="/login">
+              <Button
+                size="sm"
+                className={`rounded-full transition-all duration-500 ${isScrolled ? "bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs" : "bg-white hover:bg-white/90 text-black px-6"}`}
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -133,17 +133,20 @@ export function Navigation() {
           >
             <Button
               variant="outline"
-              className="flex-1 rounded-full h-14 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex-1 rounded-full h-14 text-base gap-2"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                window.open("https://github.com/yashraj-n/aura-ai-agent", "_blank");
+              }}
             >
-              Sign in
+              <Github className="w-5 h-5" />
+              GitHub
             </Button>
-            <Button
-              className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Deploy agent
-            </Button>
+            <Link to="/login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button className="w-full bg-foreground text-background rounded-full h-14 text-base">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

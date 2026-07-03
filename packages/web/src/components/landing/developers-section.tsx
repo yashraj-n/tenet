@@ -4,20 +4,20 @@ import { useState, useEffect, useRef } from "react";
 
 const features = [
   {
-    title: "TypeScript native",
-    description: "Full type safety for agent configs and responses.",
+    title: "Bun Native",
+    description: "Built on top of Bun and TypeScript for maximum speed and simplicity.",
   },
   {
-    title: "Streaming results",
-    description: "Watch your agents think and act in real-time.",
+    title: "Multi-Model Native",
+    description: "Seamless switching between 7 providers natively via Vercel AI SDK.",
   },
   {
-    title: "Multi-model support",
-    description: "OpenAI, Anthropic, Mistral, or bring your own.",
+    title: "Docker Containerized",
+    description: "Build and spin up sandboxes locally or in cloud with simple commands.",
   },
   {
-    title: "Local debugging",
-    description: "Test agents locally before deploying to cloud.",
+    title: "Probot Integration",
+    description: "Seamless webhook integration with GitHub out of the box.",
   },
 ];
 
@@ -67,12 +67,12 @@ export function DevelopersSection() {
         >
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
             <span className="w-8 h-px bg-foreground/30" />
-            Developer SDK
+            Developer Experience
           </span>
-          <h2 className="text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.9]">
-            Code your agents.
+          <h2 className="text-6xl md:text-7xl lg:text-[100px] font-display tracking-tight leading-[0.9]">
+            Open source.
             <br />
-            <span className="text-muted-foreground">Or let them code.</span>
+            <span className="text-muted-foreground">Easy to extend.</span>
           </h2>
         </div>
 
@@ -83,8 +83,8 @@ export function DevelopersSection() {
           }`}
         >
           <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-md">
-            A powerful SDK for building, deploying, and orchestrating AI agents. Define behaviors in
-            code or natural language.
+            Clone the codebase, configure your LLM providers, and connect it to your repository hook
+            in a few steps.
           </p>
           <div className="grid grid-cols-2 gap-6">
             {features.map((feature, index) => (
@@ -96,7 +96,9 @@ export function DevelopersSection() {
                 style={{ transitionDelay: `${index * 50 + 200}ms` }}
               >
                 <h3 className="font-medium mb-1">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
