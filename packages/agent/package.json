@@ -1,0 +1,56 @@
+{
+  "name": "@aura/agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automatically generate, review code from Github Issues & Pull Requests",
+  "keywords": [
+    "github",
+    "probot",
+    "probot-app"
+  ],
+  "homepage": "https://github.com/",
+  "license": "ISC",
+  "author": "Yashraj Narke",
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "watch": "nodemon --exec 'bun dev'",
+    "start": "bun src/agent",
+    "dev": "bun src/app.ts",
+    "build:docker": "docker build -t agent-pr-image .",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.5",
+    "@ai-sdk/azure": "^4.0.5",
+    "@ai-sdk/cohere": "^4.0.3",
+    "@ai-sdk/google": "^4.0.6",
+    "@ai-sdk/mistral": "^4.0.3",
+    "@ai-sdk/openai": "^4.0.5",
+    "@openrouter/ai-sdk-provider": "^2.10.0",
+    "@types/dockerode": "^4.0.1",
+    "ai": "^7.0.11",
+    "dockerode": "^5.0.1",
+    "langsmith": "^0.7.14",
+    "octokit": "^5.0.5",
+    "probot": "^14.3.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.0.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260701.1",
+    "ioredis": "^5.10.1",
+    "nock": "^14.0.5",
+    "nodemon": "^3.1.14",
+    "smee-client": "^5.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "@types/pg": "8.15.1"
+  },
+  "engines": {
+    "node": "^20.18.1 || >= 22"
+  }
+}

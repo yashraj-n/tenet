@@ -4,11 +4,13 @@
 
 Instead of manually building, linting, formatting, or checking types, use the following workspace scripts:
 
-- **Typecheck**: `bun run typecheck` (runs `tsgo --noEmit`)
-- **Lint**: `bun run lint` (runs `oxlint`)
-- **Lint Fix**: `bun run lint:fix` (runs `oxlint --fix`)
-- **Format**: `bun run fmt` (runs `oxfmt`)
-- **Format Check**: `bun run fmt:check` (runs `oxfmt --check`)
+- **Typecheck (Agent)**: `cd packages/agent && bun run typecheck` (runs `tsgo --noEmit`)
+- **Typecheck (Web)**: `cd packages/web && bun run typecheck` (runs `tsc --noEmit`)
+- **Dev Server (Web)**: `cd packages/web && bun run dev` (starts the Vite dev server)
+- **Lint**: `bun run lint` (runs `oxlint` from root)
+- **Lint Fix**: `bun run lint:fix` (runs `oxlint --fix` from root)
+- **Format**: `bun run fmt` (runs `oxfmt` from root)
+- **Format Check**: `bun run fmt:check` (runs `oxfmt --check` from root)
 
 ## Developer Guidelines
 
