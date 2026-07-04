@@ -4,6 +4,7 @@ import { publicProcedure, protectedProcedure, createTRPCRouter } from "./init";
 import { encrypt } from "../../lib/crypto.server";
 import { prisma } from "../../db";
 import crypto from "node:crypto";
+import { startAgentJob } from "../../lib/agent-job.server";
 
 export const appRouter = createTRPCRouter({
   test: publicProcedure.query(() => {
@@ -178,6 +179,26 @@ export const appRouter = createTRPCRouter({
         });
       }
       return { success: true };
+    }),
+
+  runAgent: protectedProcedure
+    .input(
+      z.object({
+        owner: z.string().min(1),
+        repo: z.string().min(1),
+        issueNumber: z.string().min(1),
+        customInstructions: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await startAgentJob({
+        owner: input.owner,
+        repo: input.repo,
+        issueNumber: input.issueNumber,
+        userId: ctx.user.id,
+        customInstructions: input.customInstructions,
+      });
+      return result;
     }),
 });
 

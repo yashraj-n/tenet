@@ -9,8 +9,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, ArrowRight, Sparkles } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Loader2, XCircle } from "lucide-react";
 import type { Issue } from "@/lib/types";
+import { useTRPC } from "../../integrations/trpc/react";
+import { useMutation } from "@tanstack/react-query";
 
 interface BuildModalProps {
   issue: Issue | null;
@@ -18,67 +20,62 @@ interface BuildModalProps {
   onClose: () => void;
 }
 
-type BuildStep = "idle" | "success" | "quota_exceeded";
+type BuildStep = "idle" | "loading" | "success" | "error";
 
 export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
   const [step, setStep] = useState<BuildStep>("idle");
-  const defaultQuota = { limit: 2, used: 0 };
-  const [quota, setQuota] = useState(defaultQuota);
   const [customInstructions, setCustomInstructions] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const trpc = useTRPC();
+  const runAgent = useMutation(trpc.runAgent.mutationOptions());
 
   useEffect(() => {
     if (isOpen) {
-      const stored = localStorage.getItem("tenet_quota");
-      if (stored) {
-        setQuota(JSON.parse(stored));
-      } else {
-        setQuota(defaultQuota);
-      }
       setStep("idle");
       setCustomInstructions("");
+      setErrorMessage("");
     }
   }, [isOpen]);
 
   if (!issue) return null;
 
-  const handleStartBuild = () => {
-    if (quota.used >= quota.limit) {
-      setStep("quota_exceeded");
-      return;
-    }
+  const [owner, repo] = issue.repoId.split("/");
 
-    // Add run to localStorage runs list
-    const storedRunsStr = localStorage.getItem("tenet_runs");
-    let currentRuns = [];
+  const handleStartBuild = async () => {
+    setStep("loading");
     try {
-      if (storedRunsStr) {
-        currentRuns = JSON.parse(storedRunsStr);
-      }
-    } catch {
-      currentRuns = [];
+      await runAgent.mutateAsync({
+        owner,
+        repo,
+        issueNumber: String(issue.number),
+        customInstructions: customInstructions || undefined,
+      });
+
+      const storedRunsStr = localStorage.getItem("tenet_runs");
+      let currentRuns = [];
+      try {
+        if (storedRunsStr) currentRuns = JSON.parse(storedRunsStr);
+      } catch {}
+
+      const newRun = {
+        id: `run-${Date.now()}`,
+        repoName: issue.repoId,
+        repoId: issue.repoId,
+        issueNumber: issue.number,
+        issueTitle: issue.title,
+        status: "running" as const,
+        triggeredAt: "Just now",
+        duration: "--",
+      };
+      localStorage.setItem("tenet_runs", JSON.stringify([newRun, ...currentRuns]));
+      window.dispatchEvent(new Event("tenet_runs_update"));
+
+      setStep("success");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to start agent. Check settings.");
+      setStep("error");
     }
-
-    const newRun = {
-      id: `run-${Date.now()}`,
-      repoName: issue.repoId,
-      repoId: issue.repoId,
-      issueNumber: issue.number,
-      issueTitle: issue.title,
-      status: "running" as const,
-      triggeredAt: "Just now",
-      duration: "--",
-    };
-
-    const updatedRuns = [newRun, ...currentRuns];
-    localStorage.setItem("tenet_runs", JSON.stringify(updatedRuns));
-    window.dispatchEvent(new Event("tenet_runs_update"));
-
-    // Increment quota
-    const updatedQuota = { ...quota, used: quota.used + 1 };
-    localStorage.setItem("tenet_quota", JSON.stringify(updatedQuota));
-    window.dispatchEvent(new Event("tenet_quota_update"));
-
-    setStep("success");
   };
 
   return (
@@ -86,9 +83,13 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
       <DialogContent className="bg-card border border-border text-foreground max-w-md p-8 sm:rounded-2xl">
         <DialogHeader className="space-y-2">
           <DialogTitle className="font-display text-2xl italic tracking-tight text-foreground text-center">
-            {step === "success" ? "Build Triggered" : "Autonomous Agent Build"}
+            {step === "success"
+              ? "Build Triggered"
+              : step === "error"
+                ? "Build Failed"
+                : "Autonomous Agent Build"}
           </DialogTitle>
-          {step !== "success" && (
+          {step === "idle" && (
             <DialogDescription className="text-muted-foreground text-sm text-center">
               Trigger the AI solver on issue #{issue.number} of {issue.repoId}
             </DialogDescription>
@@ -117,7 +118,6 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
                 </div>
               </div>
 
-              {/* Instructions settings */}
               <div>
                 <label className="text-xs font-mono text-muted-foreground block mb-1.5">
                   Custom Instructions (Optional)
@@ -132,7 +132,13 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
             </div>
           )}
 
-          {/* Triggered Success Screen */}
+          {step === "loading" && (
+            <div className="flex flex-col items-center justify-center gap-4 py-8 text-center select-none">
+              <Loader2 className="w-10 h-10 text-[#eca8d6] animate-spin" />
+              <p className="text-sm text-muted-foreground font-mono">Starting agent container...</p>
+            </div>
+          )}
+
           {step === "success" && (
             <div className="flex flex-col items-center justify-center gap-4 py-4 text-center select-none">
               <CheckCircle2 className="w-12 h-12 text-emerald-400 fill-emerald-500/10" />
@@ -156,31 +162,21 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
             </div>
           )}
 
-          {/* Quota Exceeded Screen */}
-          {step === "quota_exceeded" && (
+          {step === "error" && (
             <div className="flex flex-col items-center justify-center gap-4 py-4 text-center select-none">
-              <AlertTriangle className="w-12 h-12 text-amber-400 fill-amber-500/10" />
+              <XCircle className="w-12 h-12 text-red-400 fill-red-500/10" />
               <div className="space-y-1.5">
-                <h3 className="text-base font-sans font-medium text-foreground">
-                  Quota Limit Reached
-                </h3>
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                  You have used all of your 2 daily requests. Quota resets in approximately 12
-                  hours.
+                  {errorMessage}
                 </p>
               </div>
 
               <div className="flex flex-col gap-2 w-full mt-4">
                 <Button
                   className="w-full bg-foreground text-background h-11"
-                  onClick={() => {
-                    const reset = { used: 0, limit: 2 };
-                    localStorage.setItem("tenet_quota", JSON.stringify(reset));
-                    window.dispatchEvent(new Event("tenet_quota_update"));
-                    setStep("idle");
-                  }}
+                  onClick={() => setStep("idle")}
                 >
-                  Reset Quota (Demo Mode)
+                  Try Again
                 </Button>
                 <Button variant="ghost" className="w-full h-11" onClick={onClose}>
                   Close
