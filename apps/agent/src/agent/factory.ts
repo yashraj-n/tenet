@@ -6,10 +6,12 @@ import { createAzure } from "@ai-sdk/azure";
 import { createCohere } from "@ai-sdk/cohere";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { env } from "../env";
 
 export function getLanguageModel(): LanguageModel {
-  const provider = (process.env.LLM_PROVIDER || "openai").trim().toLowerCase();
-  const modelId = process.env.LLM_MODEL?.trim();
+  const provider = (env.LLM_PROVIDER || "openai").trim().toLowerCase();
+  const modelId = env.LLM_MODEL?.trim();
+  const apiKey = env.LLM_API_KEY;
 
   if (!modelId) {
     throw new Error("LLM_MODEL environment variable is not defined or is empty.");
@@ -18,44 +20,37 @@ export function getLanguageModel(): LanguageModel {
   switch (provider) {
     case "openai":
       return createOpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-        baseURL: process.env.OPENAI_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "anthropic":
       return createAnthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-        baseURL: process.env.ANTHROPIC_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "google":
       return createGoogle({
-        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_API_KEY,
-        baseURL: process.env.GOOGLE_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "azure":
       return createAzure({
-        resourceName: process.env.AZURE_RESOURCE_NAME,
-        apiKey: process.env.AZURE_API_KEY,
-        baseURL: process.env.AZURE_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "cohere":
       return createCohere({
-        apiKey: process.env.COHERE_API_KEY,
-        baseURL: process.env.COHERE_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "mistral":
       return createMistral({
-        apiKey: process.env.MISTRAL_API_KEY,
-        baseURL: process.env.MISTRAL_BASE_URL,
+        apiKey,
       })(modelId);
 
     case "openrouter":
       return createOpenRouter({
-        apiKey: process.env.OPENROUTER_API_KEY,
+        apiKey,
       })(modelId);
 
     default:

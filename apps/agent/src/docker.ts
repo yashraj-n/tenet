@@ -1,9 +1,10 @@
 import Dockerode from "dockerode";
 import crypto from "crypto";
+import { env } from "./env";
 
 let socketPath =
-  process.env.DOCKER_SOCK_PATH && process.env.DOCKER_SOCK_PATH.trim() !== ""
-    ? process.env.DOCKER_SOCK_PATH
+  env.DOCKER_SOCK_PATH && env.DOCKER_SOCK_PATH.trim() !== ""
+    ? env.DOCKER_SOCK_PATH
     : "/var/run/docker.sock";
 
 if (socketPath.startsWith("unix://")) {
@@ -21,6 +22,16 @@ export async function requestContainer(
   issueId: string,
   installationId: string,
 ) {
+  const containerApiKey =
+    env.LLM_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    process.env.ANTHROPIC_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.COHERE_API_KEY ||
+    process.env.MISTRAL_API_KEY ||
+    process.env.OPENROUTER_API_KEY;
+
   const container = await docker.createContainer({
     Image: IMAGE_NAME,
     name: `${CONTAINER_PREFIX}-${crypto.randomUUID()}`,
@@ -35,28 +46,13 @@ export async function requestContainer(
       `ISSUE_ID=${issueId}`,
       `OWNER_NAME=${owner}`,
       `INSTALLATION_ID=${installationId}`,
-      ...(process.env.APP_ID ? [`APP_ID=${process.env.APP_ID}`] : []),
-      ...(process.env.PRIVATE_KEY ? [`PRIVATE_KEY=${process.env.PRIVATE_KEY}`] : []),
-      ...(process.env.LLM_MODEL ? [`LLM_MODEL=${process.env.LLM_MODEL}`] : []),
-      ...(process.env.GEMINI_API_KEY ? [`GEMINI_API_KEY=${process.env.GEMINI_API_KEY}`] : []),
-      ...(process.env.OPENAI_API_KEY ? [`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`] : []),
-      ...(process.env.ANTHROPIC_API_KEY
-        ? [`ANTHROPIC_API_KEY=${process.env.ANTHROPIC_API_KEY}`]
-        : []),
-      ...(process.env.COHERE_API_KEY ? [`COHERE_API_KEY=${process.env.COHERE_API_KEY}`] : []),
-      ...(process.env.MISTRAL_API_KEY ? [`MISTRAL_API_KEY=${process.env.MISTRAL_API_KEY}`] : []),
-      ...(process.env.OPENROUTER_API_KEY
-        ? [`OPENROUTER_API_KEY=${process.env.OPENROUTER_API_KEY}`]
-        : []),
-      ...(process.env.LANGCHAIN_TRACING_V2
-        ? [`LANGCHAIN_TRACING_V2=${process.env.LANGCHAIN_TRACING_V2}`]
-        : []),
-      ...(process.env.LANGCHAIN_API_KEY
-        ? [`LANGCHAIN_API_KEY=${process.env.LANGCHAIN_API_KEY}`]
-        : []),
-      ...(process.env.LANGCHAIN_PROJECT
-        ? [`LANGCHAIN_PROJECT=${process.env.LANGCHAIN_PROJECT}`]
-        : []),
+      ...(env.APP_ID ? [`APP_ID=${env.APP_ID}`] : []),
+      ...(env.PRIVATE_KEY ? [`PRIVATE_KEY=${env.PRIVATE_KEY}`] : []),
+      ...(env.LLM_MODEL ? [`LLM_MODEL=${env.LLM_MODEL}`] : []),
+      ...(containerApiKey ? [`LLM_API_KEY=${containerApiKey}`] : []),
+      ...(env.LANGCHAIN_TRACING_V2 ? [`LANGCHAIN_TRACING_V2=${env.LANGCHAIN_TRACING_V2}`] : []),
+      ...(env.LANGCHAIN_API_KEY ? [`LANGCHAIN_API_KEY=${env.LANGCHAIN_API_KEY}`] : []),
+      ...(env.LANGCHAIN_PROJECT ? [`LANGCHAIN_PROJECT=${env.LANGCHAIN_PROJECT}`] : []),
     ],
   });
   console.log(`Starting container ${container.id} for issue ${issueId} in repo ${owner}/${repo}`);
