@@ -4,13 +4,14 @@ import crypto from "crypto";
 let socketPath =
   process.env.DOCKER_SOCK_PATH && process.env.DOCKER_SOCK_PATH.trim() !== ""
     ? process.env.DOCKER_SOCK_PATH
-    : undefined;
+    : "/var/run/docker.sock";
 
-if (socketPath && socketPath.startsWith("unix://")) {
+if (socketPath.startsWith("unix://")) {
   socketPath = socketPath.substring(7);
 }
 
 const docker = new Dockerode({ socketPath });
+
 const IMAGE_NAME = "agent-pr-image";
 const CONTAINER_PREFIX = "agent-pr-container";
 

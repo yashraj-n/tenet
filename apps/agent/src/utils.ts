@@ -17,3 +17,14 @@ export async function mapWithConcurrency<T, R>(
   await Promise.all(workers);
   return results;
 }
+
+import { resolve, relative } from "node:path";
+
+export function getWorkspacePath(filePath: string): string {
+  const resolved = resolve("/workspace", filePath);
+  const relativePath = relative("/workspace", resolved);
+  if (relativePath.startsWith("..") || relativePath === "..") {
+    throw new Error(`Access Denied: Path '${filePath}' is outside of the workspace.`);
+  }
+  return resolved;
+}
