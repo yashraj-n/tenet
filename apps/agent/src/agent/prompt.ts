@@ -2,7 +2,7 @@ import os from "node:os";
 import fs from "node:fs";
 import path from "node:path";
 
-export async function createDevPrompt(_model: string) {
+export async function createDevPrompt(_model: string, customInstructions?: string) {
   const osVersion = `${os.platform()} ${os.release()}`;
   const shell = process.env.SHELL || "/bin/sh";
   const workingDir = process.cwd();
@@ -116,5 +116,9 @@ Working directory: ${workingDir}
 Is directory a git repo: ${isGitRepo}
 Today's date: ${todayDate}
 </env>
+<custom_instructions>
+Here are the custom instructions provided by the user:
+${customInstructions || "No Custom Instructions Provided"}
+</custom_instructions>
 `;
 }

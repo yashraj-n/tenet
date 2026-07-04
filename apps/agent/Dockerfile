@@ -17,7 +17,8 @@ RUN groupadd -g 2000 agent-sandbox && \
     useradd -u 2000 -g 2000 -m -s /bin/bash agent-sandbox
 
 RUN mkdir -p /workspace && \
-    chown agent-sandbox:agent-sandbox /workspace
+    chown -R agent-sandbox:agent-sandbox /workspace && \
+    chmod -R 777 /workspace
 
 COPY apps/agent /app/apps/agent
 COPY --from=install /temp/pkg/node_modules /app/apps/agent/node_modules
