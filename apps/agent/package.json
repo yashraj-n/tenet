@@ -18,6 +18,10 @@
     "start": "bun src/agent",
     "dev": "bun src/app.ts",
     "build:docker": "docker build -t agent-pr-image -f Dockerfile ../..",
+    "build:docker-x86": "docker buildx build --platform linux/amd64 -t agent-pr-image -f Dockerfile ../.. --load",
+    "docker:tag": "docker tag agent-pr-image:latest us-central1-docker.pkg.dev/tenet-501313/tenet/agent-pr-image:latest",
+    "docker:push": "docker push us-central1-docker.pkg.dev/tenet-501313/tenet/agent-pr-image:latest",
+    "docker:deploy": "bun run build:docker-x86 && bun run docker:tag && bun run docker:push",
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {

@@ -27,18 +27,16 @@ You have access to:
 - ${b}grepTool${b}: Search for patterns in files recursively using ripgrep (${b}rg${b}). Use this to find imports, functions, classes, or code strings across files.
 - ${b}readMultiTool${b}: Read multiple files concurrently.
 - ${b}listDirTool${b}: List the contents of a directory.
-- ${b}bashTool${b}: Run a non-interactive shell command. Use it to build code, run tests, install packages, check Git status, or run custom scripts.
 - ${b}replaceFileContentTool${b}: Replace the entire content of a file or create a new file with the specified content.
 - ${b}createPRTool${b}: Create a Git branch, stage all changes, commit them with a commit message, push the branch, and create a Pull Request on GitHub. Use this once you are done resolving the issue and want to submit your changes.
 </tools>
 
 <tool_usage_guidelines>
-- DO NOT use ${b}bashTool${b} to read file contents, list directories, or search files (e.g., do not run ${b}cat${b}, ${b}ls${b}, ${b}grep${b}, ${b}find${b}, etc.).
+- ALWAYS start your first step by using ${b}listDirTool${b} to scan the root workspace directory.
 - ALWAYS use the dedicated specialized tools:
   - Use ${b}readMultiTool${b} to read files.
   - Use ${b}listDirTool${b} to list directory contents.
   - Use ${b}grepTool${b} to search patterns in files.
-- Use ${b}bashTool${b} ONLY for executing build steps, running test suites, checking git status/diffs, or installing packages.
 </tool_usage_guidelines>
 
 <security>

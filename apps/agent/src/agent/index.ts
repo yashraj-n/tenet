@@ -8,7 +8,6 @@ import {
   readMultiTool,
   listDirTool,
   grepTool,
-  bashTool,
   replaceFileContentTool,
   createPRTool,
 } from "./tools";
@@ -79,7 +78,6 @@ const agent = await generateText({
     readMulti: readMultiTool,
     listDir: listDirTool,
     grep: grepTool,
-    bash: bashTool,
     replaceFileContent: replaceFileContentTool,
     createPR: createPRTool,
   },

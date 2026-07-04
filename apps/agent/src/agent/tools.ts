@@ -87,58 +87,6 @@ export const grepTool = tool({
   },
 });
 
-export const bashTool = tool({
-  description: "Run a command in the bash shell. Only run non-interactive commands.",
-  inputSchema: z.object({
-    command: z.string().min(1, "Command cannot be empty"),
-  }),
-  execute: async ({ command }) => {
-    try {
-      const isLinux = process.platform === "linux";
-      const cmd = isLinux
-        ? ["runuser", "-u", "agent-sandbox", "--", "bash", "-c", command]
-        : ["bash", "-c", command];
-
-      const proc = Bun.spawn({
-        cmd,
-        cwd: "/workspace",
-        timeout: 20000,
-        stdout: "pipe",
-        stderr: "pipe",
-        env: {
-          PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-          HOME: "/home/agent-sandbox",
-          LANG: "en_US.UTF-8",
-        },
-      });
-
-      const exitCode = await proc.exited;
-      const stdout = await new Response(proc.stdout).text();
-      const stderr = await new Response(proc.stderr).text();
-
-      if (proc.killed && proc.signalCode === "SIGTERM") {
-        return {
-          stdout,
-          stderr: stderr || "Command timed out after 20 seconds",
-          exitCode: 124,
-        };
-      }
-
-      return {
-        stdout,
-        stderr,
-        exitCode,
-      };
-    } catch (error: any) {
-      return {
-        stdout: "",
-        stderr: error.message || String(error),
-        exitCode: 1,
-      };
-    }
-  },
-});
-
 export const replaceFileContentTool = tool({
   description:
     "Replace the entire content of a file or create a new file with the specified content",
@@ -197,12 +145,16 @@ export const createPRTool = tool({
 
       const issueIdStr = process.env.ISSUE_ID;
       if (issueIdStr) {
-        await octokit.rest.issues.createComment({
-          owner,
-          repo,
-          issue_number: parseInt(issueIdStr),
-          body: `I have successfully created a pull request to resolve this issue. Please review the changes here: ${prResponse.data.html_url}`,
-        });
+        try {
+          await octokit.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: parseInt(issueIdStr),
+            body: `I have successfully created a pull request to resolve this issue. Please review the changes here: ${prResponse.data.html_url}`,
+          });
+        } catch (commentError: any) {
+          console.error(commentError.message || commentError);
+        }
       }
 
       return {
