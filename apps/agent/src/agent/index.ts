@@ -16,6 +16,14 @@ import { wrapAISDK } from "langsmith/experimental/vercel";
 
 const { generateText } = wrapAISDK(ai);
 
+console.log(`
+ _____         __    _____ 
+/__   \\___  /\\ \\ \\__/__   \\
+  / /\\/ _ \\/  \\/ / _ \\/ /\\/
+ / / |  __/ /\\  /  __/ /   
+ \\/   \\___\\_\\ \\/ \\___\\/
+`);
+
 const repoName = process.env.REPO_NAME;
 const issueId = process.env.ISSUE_ID;
 const ownerName = process.env.OWNER_NAME;
@@ -49,7 +57,6 @@ console.log(`Issue ID: ${issueId}`);
 console.log(`Owner Name: ${ownerName}`);
 console.log(`Issue Title: ${issue.title}`);
 console.log(`Issue Body: ${issue.body}`);
-console.log(`Token (first 7): ${accessToken.substring(0, 7)}...`);
 
 console.log("Cloning to /tmp/workdir");
 await cloneGitRepo(
@@ -61,7 +68,6 @@ await cloneGitRepo(
 );
 
 process.chdir("/tmp/workdir");
-console.log("Asking ai wtf is this");
 const agent = await generateText({
   model: getLanguageModel(),
   system: await createDevPrompt(process.env.LLM_MODEL || "default"),

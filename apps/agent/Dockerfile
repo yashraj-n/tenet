@@ -6,11 +6,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 FROM base AS install
-RUN mkdir -p /temp/pkg/apps/agent /temp/pkg/apps/client
-COPY package.json bun.lock /temp/pkg/
-COPY apps/agent/package.json /temp/pkg/apps/agent/
-COPY apps/client/package.json /temp/pkg/apps/client/
-RUN cd /temp/pkg && bun install --frozen-lockfile --production
+RUN mkdir -p /temp/pkg
+COPY apps/agent/package.json /temp/pkg/package.json
+
+RUN cd /temp/pkg && bun install --production
 
 FROM base AS release
 
@@ -21,7 +20,8 @@ RUN mkdir -p /workspace && \
     chown agent-sandbox:agent-sandbox /workspace
 
 COPY apps/agent /app/apps/agent
-COPY --from=install /temp/pkg /app
+COPY --from=install /temp/pkg/node_modules /app/apps/agent/node_modules
+
 
 RUN chown -R root:root /app
 RUN chown -R agent-sandbox:agent-sandbox /tmp
