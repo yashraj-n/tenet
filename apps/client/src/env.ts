@@ -10,6 +10,12 @@ export const env = createEnv({
     GITHUB_CLIENT_ID: z.string(),
     GITHUB_CLIENT_SECRET: z.string(),
     TRUSTED_ORIGINS: z.string(),
+    SECRET_WEBHOOK_KEY: z.string(),
+    GOOGLE_SERVICE_ACCOUNT_JSON: z.string(),
+    GOOGLE_PROJECT_ID: z.string(),
+    GOOGLE_PROJECT_REGION: z.string(),
+    GOOGLE_CLOUD_RUN_WORKER_NAME: z.string(),
+    
   },
   clientPrefix: "VITE_",
   client: {
@@ -23,7 +29,13 @@ export const env = createEnv({
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     TRUSTED_ORIGINS: process.env.TRUSTED_ORIGINS,
+    SECRET_WEBHOOK_KEY: process.env.SECRET_WEBHOOK_KEY,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
+    GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    GOOGLE_CLOUD_RUN_WORKER_NAME: process.env.GOOGLE_CLOUD_RUN_WORKER_NAME,
+    GOOGLE_PROJECT_ID: process.env.GOOGLE_PROJECT_ID,
+    GOOGLE_PROJECT_REGION: process.env.GOOGLE_PROJECT_REGION,
+    
   },
   emptyStringAsUndefined: true,
 });
