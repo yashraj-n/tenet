@@ -16,6 +16,7 @@ import { Route as DashboardDashboardIndexRouteImport } from './routes/_dashboard
 import { Route as ApiWebhookSplatRouteImport } from './routes/api/webhook/$'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DashboardDashboardSettingsRouteImport } from './routes/_dashboard/dashboard.settings'
 import { Route as DashboardDashboardRunsRouteImport } from './routes/_dashboard/dashboard.runs'
 import { Route as DashboardDashboardRepoIdRouteImport } from './routes/_dashboard/dashboard.$repoId'
 
@@ -53,6 +54,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardDashboardSettingsRoute =
+  DashboardDashboardSettingsRouteImport.update({
+    id: '/dashboard/settings',
+    path: '/dashboard/settings',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardDashboardRunsRoute = DashboardDashboardRunsRouteImport.update({
   id: '/dashboard/runs',
   path: '/dashboard/runs',
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
   '/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/dashboard/settings': typeof DashboardDashboardSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/api/webhook/$': typeof ApiWebhookSplatRoute
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
   '/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/dashboard/settings': typeof DashboardDashboardSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/api/webhook/$': typeof ApiWebhookSplatRoute
@@ -92,6 +101,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_dashboard/dashboard/$repoId': typeof DashboardDashboardRepoIdRoute
   '/_dashboard/dashboard/runs': typeof DashboardDashboardRunsRoute
+  '/_dashboard/dashboard/settings': typeof DashboardDashboardSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/api/webhook/$': typeof ApiWebhookSplatRoute
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/$repoId'
     | '/dashboard/runs'
+    | '/dashboard/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/api/webhook/$'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/$repoId'
     | '/dashboard/runs'
+    | '/dashboard/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/api/webhook/$'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_dashboard/dashboard/$repoId'
     | '/_dashboard/dashboard/runs'
+    | '/_dashboard/dashboard/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/api/webhook/$'
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/dashboard/settings': {
+      id: '/_dashboard/dashboard/settings'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardDashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/dashboard/runs': {
       id: '/_dashboard/dashboard/runs'
       path: '/dashboard/runs'
@@ -211,12 +231,14 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardDashboardRepoIdRoute: typeof DashboardDashboardRepoIdRoute
   DashboardDashboardRunsRoute: typeof DashboardDashboardRunsRoute
+  DashboardDashboardSettingsRoute: typeof DashboardDashboardSettingsRoute
   DashboardDashboardIndexRoute: typeof DashboardDashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRepoIdRoute: DashboardDashboardRepoIdRoute,
   DashboardDashboardRunsRoute: DashboardDashboardRunsRoute,
+  DashboardDashboardSettingsRoute: DashboardDashboardSettingsRoute,
   DashboardDashboardIndexRoute: DashboardDashboardIndexRoute,
 }
 
