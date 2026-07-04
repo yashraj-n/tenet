@@ -53,6 +53,7 @@ export async function requestContainer(
       ...(env.LANGCHAIN_TRACING_V2 ? [`LANGCHAIN_TRACING_V2=${env.LANGCHAIN_TRACING_V2}`] : []),
       ...(env.LANGCHAIN_API_KEY ? [`LANGCHAIN_API_KEY=${env.LANGCHAIN_API_KEY}`] : []),
       ...(env.LANGCHAIN_PROJECT ? [`LANGCHAIN_PROJECT=${env.LANGCHAIN_PROJECT}`] : []),
+      ...(env.CUSTOM_INSTRUCTIONS ? [`CUSTOM_INSTRUCTIONS=${env.CUSTOM_INSTRUCTIONS}`] : []),
     ],
   });
   console.log(`Starting container ${container.id} for issue ${issueId} in repo ${owner}/${repo}`);

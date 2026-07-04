@@ -74,7 +74,7 @@ await $`git config --global --add safe.directory '*'`.quiet();
 process.chdir("/workspace");
 const agent = await generateText({
   model: getLanguageModel(),
-  system: await createDevPrompt(process.env.LLM_MODEL || "default"),
+  system: await createDevPrompt(env.LLM_MODEL || "default", env.CUSTOM_INSTRUCTIONS),
   prompt: `These are comments of issue:
   Title: ${issue.title}
   Body: ${issue.body}
