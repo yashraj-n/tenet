@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Outlet, Link, useLocation, useRouter } from "@tanstack/react-router";
-import { Search, Plus, LogOut, ChevronRight, FolderGit2, Terminal } from "lucide-react";
+import { Search, Plus, LogOut, ChevronRight, FolderGit2, Terminal, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../integrations/trpc/react";
 import { RepoItem } from "@/components/dashboard/repo-item";
@@ -141,7 +141,9 @@ function DashboardLayout() {
   );
 
   const isRunsActive = location.pathname === "/dashboard/runs";
-  const isRepositoriesActive = location.pathname.startsWith("/dashboard") && !isRunsActive;
+  const isSettingsActive = location.pathname === "/dashboard/settings";
+  const isRepositoriesActive =
+    location.pathname.startsWith("/dashboard") && !isRunsActive && !isSettingsActive;
 
   return (
     <div className="relative min-h-screen flex flex-col bg-background font-sans noise-overlay antialiased">
@@ -193,6 +195,17 @@ function DashboardLayout() {
             >
               <Terminal className="w-4 h-4" />
               <span>Runs History</span>
+            </Link>
+            <Link
+              to="/dashboard/settings"
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200 ${
+                isSettingsActive
+                  ? "bg-foreground/[0.04] text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]"
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              <span>Model Settings</span>
             </Link>
           </div>
 

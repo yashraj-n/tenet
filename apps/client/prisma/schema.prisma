@@ -15,8 +15,9 @@ model User {
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+  sessions        Session[]
+  accounts        Account[]
+  providerConfigs ProviderConfig[]
 
   @@map("user")
 }
@@ -63,4 +64,20 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model ProviderConfig {
+  id           String   @id @map("_id")
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String   // google, openai, anthropic, cohere, mistral
+  encryptedKey String
+  salt         String
+  iv           String
+  modelName    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, provider])
+  @@map("provider_config")
 }

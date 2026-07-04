@@ -15,7 +15,6 @@ export const env = createEnv({
     GOOGLE_PROJECT_ID: z.string(),
     GOOGLE_PROJECT_REGION: z.string(),
     GOOGLE_CLOUD_RUN_WORKER_NAME: z.string(),
-    
   },
   clientPrefix: "VITE_",
   client: {
@@ -35,7 +34,6 @@ export const env = createEnv({
     GOOGLE_CLOUD_RUN_WORKER_NAME: process.env.GOOGLE_CLOUD_RUN_WORKER_NAME,
     GOOGLE_PROJECT_ID: process.env.GOOGLE_PROJECT_ID,
     GOOGLE_PROJECT_REGION: process.env.GOOGLE_PROJECT_REGION,
-    
   },
   emptyStringAsUndefined: true,
 });

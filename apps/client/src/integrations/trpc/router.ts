@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { getGithubOctokit } from "../../lib/github";
 import { publicProcedure, protectedProcedure, createTRPCRouter } from "./init";
+import { encrypt } from "../../lib/crypto.server";
+import { prisma } from "../../db";
+import crypto from "node:crypto";
 
 export const appRouter = createTRPCRouter({
   test: publicProcedure.query(() => {
@@ -67,6 +70,114 @@ export const appRouter = createTRPCRouter({
             body: issue.body ?? undefined,
           };
         });
+    }),
+
+  getAvailableModels: protectedProcedure.query(async () => {
+    try {
+      const res = await fetch("https://models.dev/models.json");
+      const data = (await res.json()) as Record<
+        string,
+        { id: string; name: string; description?: string }
+      >;
+      const supportedProviders = [
+        "google",
+        "openai",
+        "anthropic",
+        "cohere",
+        "mistral",
+        "azure",
+        "openrouter",
+      ];
+
+      const modelsList: Array<{
+        id: string;
+        name: string;
+        provider: string;
+        description?: string;
+      }> = [];
+
+      for (const key of Object.keys(data)) {
+        const provider = key.split("/")[0];
+        if (supportedProviders.includes(provider)) {
+          modelsList.push({
+            id: data[key].id,
+            name: data[key].name,
+            provider,
+            description: data[key].description,
+          });
+        }
+      }
+      return modelsList;
+    } catch (error) {
+      console.error(error);
+      return [
+        { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
+        { id: "google/gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
+        { id: "openai/gpt-4o", name: "GPT-4o", provider: "openai" },
+        { id: "openai/gpt-4o-mini", name: "GPT-4o Mini", provider: "openai" },
+        { id: "anthropic/claude-3-5-sonnet", name: "Claude 3.5 Sonnet", provider: "anthropic" },
+        { id: "cohere/command-r-plus", name: "Command R+", provider: "cohere" },
+        { id: "mistral/mistral-large-latest", name: "Mistral Large", provider: "mistral" },
+      ];
+    }
+  }),
+
+  getProviderConfigs: protectedProcedure.query(async ({ ctx }) => {
+    const configs = await prisma.providerConfig.findMany({
+      where: { userId: ctx.user.id },
+    });
+    return configs.map((c: any) => ({
+      provider: c.provider,
+      updatedAt: c.updatedAt,
+      hasKey: true,
+      modelName: c.modelName,
+    }));
+  }),
+
+  saveProviderConfig: protectedProcedure
+    .input(
+      z.object({
+        provider: z.string(),
+        apiKey: z.string().min(1, "API Key is required"),
+        modelName: z.string().nullable().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { encryptedData, iv, salt } = encrypt(input.apiKey);
+
+      const existing = await prisma.providerConfig.findUnique({
+        where: {
+          userId_provider: {
+            userId: ctx.user.id,
+            provider: input.provider,
+          },
+        },
+      });
+
+      if (existing) {
+        await prisma.providerConfig.update({
+          where: { id: existing.id },
+          data: {
+            encryptedKey: encryptedData,
+            iv,
+            salt,
+            modelName: input.modelName || null,
+          },
+        });
+      } else {
+        await prisma.providerConfig.create({
+          data: {
+            id: crypto.randomUUID(),
+            userId: ctx.user.id,
+            provider: input.provider,
+            encryptedKey: encryptedData,
+            iv,
+            salt,
+            modelName: input.modelName || null,
+          },
+        });
+      }
+      return { success: true };
     }),
 });
 
