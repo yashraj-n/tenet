@@ -4,6 +4,7 @@ import { mapWithConcurrency, getWorkspacePath } from "../utils";
 import { readdir } from "node:fs/promises";
 import { $ } from "bun";
 import { App } from "octokit";
+import { env } from "../env";
 import { Shescape } from "shescape";
 
 const she = new Shescape({ shell: "bash" });
@@ -115,22 +116,22 @@ export const createPRTool = tool({
   }),
   execute: async ({ title, description, commitMessage }) => {
     try {
-      const branchName = `fix/issue-${process.env.ISSUE_ID || "patch"}-${Date.now()}`;
-      const owner = process.env.OWNER_NAME!;
-      const repo = process.env.REPO_NAME!;
+      const branchName = `fix/issue-${env.ISSUE_ID || "patch"}-${Date.now()}`;
+      const owner = env.OWNER_NAME!;
+      const repo = env.REPO_NAME!;
 
       await $`git config user.name "Aura AI Agent"`.quiet();
-      await $`git config user.email "agent@localhost"`.quiet();
+      await $`git config user.email "agent@tenet.yashrajn.com"`.quiet();
       await $`git add .`.quiet();
       await $`git checkout -b ${branchName}`.quiet();
       await $`git commit -m ${commitMessage}`.quiet();
       await $`git push origin ${branchName}`.quiet();
 
       const app = new App({
-        appId: process.env.APP_ID!,
-        privateKey: process.env.PRIVATE_KEY!,
+        appId: env.APP_ID!,
+        privateKey: env.PRIVATE_KEY!,
       });
-      const octokit = await app.getInstallationOctokit(parseInt(process.env.INSTALLATION_ID!));
+      const octokit = await app.getInstallationOctokit(parseInt(env.INSTALLATION_ID!));
 
       const { data: repository } = await octokit.rest.repos.get({ owner, repo });
 
@@ -143,7 +144,7 @@ export const createPRTool = tool({
         base: repository.default_branch,
       });
 
-      const issueIdStr = process.env.ISSUE_ID;
+      const issueIdStr = env.ISSUE_ID;
       if (issueIdStr) {
         try {
           await octokit.rest.issues.createComment({

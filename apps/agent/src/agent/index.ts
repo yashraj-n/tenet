@@ -12,6 +12,7 @@ import {
   createPRTool,
 } from "./tools";
 import { wrapAISDK } from "langsmith/experimental/vercel";
+import { env } from "../env";
 
 const { generateText } = wrapAISDK(ai);
 
@@ -23,31 +24,31 @@ console.log(`
  \\/   \\___\\_\\ \\/ \\___\\/
 `);
 
-const repoName = process.env.REPO_NAME;
-const issueId = process.env.ISSUE_ID;
-const ownerName = process.env.OWNER_NAME;
+const repoName = env.REPO_NAME;
+const issueId = env.ISSUE_ID;
+const ownerName = env.OWNER_NAME;
 
 const app = new App({
-  appId: process.env.APP_ID!,
-  privateKey: process.env.PRIVATE_KEY!,
+  appId: env.APP_ID!,
+  privateKey: env.PRIVATE_KEY!,
 });
 
-const octokit = await app.getInstallationOctokit(parseInt(process.env.INSTALLATION_ID!));
+const octokit = await app.getInstallationOctokit(parseInt(env.INSTALLATION_ID!));
 const auth = await app.octokit.auth({
   type: "installation",
-  installationId: parseInt(process.env.INSTALLATION_ID!),
+  installationId: parseInt(env.INSTALLATION_ID!),
 });
 
 const { data: issue } = await octokit.rest.issues.get({
-  owner: process.env.OWNER_NAME!,
-  repo: process.env.REPO_NAME!,
-  issue_number: parseInt(process.env.ISSUE_ID!),
+  owner: env.OWNER_NAME!,
+  repo: env.REPO_NAME!,
+  issue_number: parseInt(env.ISSUE_ID!),
 });
 
 const { data: comments } = await octokit.rest.issues.listComments({
-  owner: process.env.OWNER_NAME!,
-  repo: process.env.REPO_NAME!,
-  issue_number: parseInt(process.env.ISSUE_ID!),
+  owner: env.OWNER_NAME!,
+  repo: env.REPO_NAME!,
+  issue_number: parseInt(env.ISSUE_ID!),
 });
 
 const accessToken = (auth as { token: string }).token;
