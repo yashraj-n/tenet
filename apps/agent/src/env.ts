@@ -17,6 +17,7 @@ export const env = createEnv({
     INSTALLATION_ID: z.string().optional(),
     APP_ID: z.string().optional(),
     PRIVATE_KEY: z.string().optional(),
+    CUSTOM_INSTRUCTIONS: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
