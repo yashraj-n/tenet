@@ -1,9 +1,12 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { mapWithConcurrency } from "../utils";
+import { mapWithConcurrency, getWorkspacePath } from "../utils";
 import { readdir } from "node:fs/promises";
 import { $ } from "bun";
 import { App } from "octokit";
+import { Shescape } from "shescape";
+
+const she = new Shescape({ shell: "bash" });
 
 export const readMultiTool = tool({
   description: "Read multiple files concurrently",
@@ -15,7 +18,8 @@ export const readMultiTool = tool({
       paths,
       async (filePath) => {
         try {
-          const content = await Bun.file(filePath).text();
+          const safePath = getWorkspacePath(filePath);
+          const content = await Bun.file(safePath).text();
           return { path: filePath, content };
         } catch (error: any) {
           return { path: filePath, error: error.message || String(error) };
@@ -31,7 +35,8 @@ export const listDirTool = tool({
   inputSchema: z.string(),
   execute: async (dirPath) => {
     try {
-      return await readdir(dirPath);
+      const safeDir = getWorkspacePath(dirPath);
+      return await readdir(safeDir);
     } catch (error: any) {
       return { error: error.message || String(error) };
     }
@@ -46,13 +51,38 @@ export const grepTool = tool({
   }),
   execute: async ({ pattern, dirPath }) => {
     try {
-      const result = await $`rg -n --no-heading --color=never ${pattern} ${dirPath}`.quiet();
-      return result.stdout.toString();
-    } catch (error: any) {
-      if (error.exitCode === 1) {
+      const safeDir = getWorkspacePath(dirPath);
+      const isLinux = process.platform === "linux";
+      const escapedPattern = she.quote(pattern);
+      const escapedDir = she.quote(safeDir);
+      const shellCommand = `rg -n --no-heading --color=never ${escapedPattern} ${escapedDir}`;
+
+      const cmd = isLinux
+        ? ["runuser", "-u", "agent-sandbox", "--", "bash", "-c", shellCommand]
+        : ["bash", "-c", shellCommand];
+
+      const proc = Bun.spawn({
+        cmd,
+        timeout: 20000,
+        stdout: "pipe",
+        stderr: "pipe",
+        env: {
+          PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          HOME: "/home/agent-sandbox",
+          LANG: "en_US.UTF-8",
+        },
+      });
+
+      const exitCode = await proc.exited;
+      const stdout = await new Response(proc.stdout).text();
+
+      if (exitCode === 1) {
         return "No matches found.";
       }
-      return { error: error.stderr?.toString() || error.message || String(error) };
+
+      return stdout;
+    } catch (error: any) {
+      return { error: error.message || String(error) };
     }
   },
 });
@@ -64,11 +94,22 @@ export const bashTool = tool({
   }),
   execute: async ({ command }) => {
     try {
+      const isLinux = process.platform === "linux";
+      const cmd = isLinux
+        ? ["runuser", "-u", "agent-sandbox", "--", "bash", "-c", command]
+        : ["bash", "-c", command];
+
       const proc = Bun.spawn({
-        cmd: ["bash", "-c", command],
+        cmd,
+        cwd: "/workspace",
         timeout: 20000,
         stdout: "pipe",
         stderr: "pipe",
+        env: {
+          PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          HOME: "/home/agent-sandbox",
+          LANG: "en_US.UTF-8",
+        },
       });
 
       const exitCode = await proc.exited;
@@ -107,7 +148,8 @@ export const replaceFileContentTool = tool({
   }),
   execute: async ({ filePath, content }) => {
     try {
-      await Bun.write(filePath, content);
+      const safePath = getWorkspacePath(filePath);
+      await Bun.write(safePath, content);
       return { success: true, filePath };
     } catch (error: any) {
       return { success: false, error: error.message || String(error) };

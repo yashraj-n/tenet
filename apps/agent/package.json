@@ -17,7 +17,7 @@
     "watch": "nodemon --exec 'bun dev'",
     "start": "bun src/agent",
     "dev": "bun src/app.ts",
-    "build:docker": "docker build -t agent-pr-image .",
+    "build:docker": "docker build -t agent-pr-image -f Dockerfile ../..",
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
@@ -34,6 +34,7 @@
     "langsmith": "^0.7.14",
     "octokit": "^5.0.5",
     "probot": "^14.3.2",
+    "shescape": "^3.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
