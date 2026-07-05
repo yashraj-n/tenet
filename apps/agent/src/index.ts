@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { App } from "octokit";
 import { cloneGitRepo } from "./git";
 import { rm, mkdir } from "node:fs/promises";
@@ -13,17 +14,17 @@ import {
   createPRTool,
 } from "./tools";
 import { wrapAISDK } from "langsmith/experimental/vercel";
-import { env } from "../env";
+import { env } from "./env";
 import { $ } from "bun";
 
 const { generateText } = wrapAISDK(ai);
 
 console.log(`
  _____         __    _____ 
-/__   \\___  /\\ \\ \\__/__   \\
-  / /\\/ _ \\/  \\/ / _ \\/ /\\/
- / / |  __/ /\\  /  __/ /   
- \\/   \\___\\_\\ \\/ \\___\\/
+/__   \___  /\ \ \__/__   \
+  / /\/ _ \/  \/ / _ \/ /\/
+ / / |  __/ /\  /  __/ /   
+ \/   \___\_\ \/ \___\/
 `);
 
 const repoName = env.REPO_NAME;
@@ -74,7 +75,7 @@ await $`git config --global --add safe.directory '*'`.quiet();
 process.chdir("/workspace");
 const agent = await generateText({
   model: getLanguageModel(),
-  system: await createDevPrompt(env.LLM_MODEL || "default", env.CUSTOM_INSTRUCTIONS),
+  system: createDevPrompt(env.LLM_MODEL || "default", env.CUSTOM_INSTRUCTIONS),
   prompt: `These are comments of issue:
   Title: ${issue.title}
   Body: ${issue.body}
@@ -88,7 +89,6 @@ const agent = await generateText({
   },
   seed: 0,
   stopWhen: isStepCount(5000),
-  // maxSteps: 5,
 });
 
 console.log(`Agent response: ${agent.text}`);

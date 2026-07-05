@@ -10,7 +10,6 @@ export const env = createEnv({
     LANGCHAIN_TRACING_V2: z.string().optional(),
     LANGCHAIN_API_KEY: z.string().optional(),
     LANGCHAIN_PROJECT: z.string().optional(),
-    DOCKER_SOCK_PATH: z.string().default("/var/run/docker.sock"),
     REPO_NAME: z.string().optional(),
     ISSUE_ID: z.string().optional(),
     OWNER_NAME: z.string().optional(),

@@ -6,7 +6,7 @@ import { createAzure } from "@ai-sdk/azure";
 import { createCohere } from "@ai-sdk/cohere";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { env } from "../env";
+import { env } from "./env";
 
 export function getLanguageModel(): LanguageModel {
   const provider = (env.LLM_PROVIDER || "openai").trim().toLowerCase();

@@ -1,10 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { mapWithConcurrency, getWorkspacePath } from "../utils";
+import { mapWithConcurrency, getWorkspacePath } from "./utils";
 import { readdir } from "node:fs/promises";
 import { $ } from "bun";
 import { App } from "octokit";
-import { env } from "../env";
+import { env } from "./env";
 import { Shescape } from "shescape";
 
 const she = new Shescape({ shell: "bash" });
@@ -19,11 +19,11 @@ export const readMultiTool = tool({
       paths,
       async (filePath) => {
         try {
-          const safePath = getWorkspacePath(filePath);
-          const content = await Bun.file(safePath).text();
-          return { path: filePath, content };
+          const resolved = getWorkspacePath(filePath);
+          const content = await Bun.file(resolved).text();
+          return { path: filePath, content, success: true };
         } catch (error: any) {
-          return { path: filePath, error: error.message || String(error) };
+          return { path: filePath, error: error.message || String(error), success: false };
         }
       },
       5,
@@ -32,12 +32,15 @@ export const readMultiTool = tool({
 });
 
 export const listDirTool = tool({
-  description: "List contents of a directory",
-  inputSchema: z.string(),
-  execute: async (dirPath) => {
+  description: "List the files and folders inside a directory recursively",
+  inputSchema: z.object({
+    path: z.string().default("."),
+  }),
+  execute: async ({ path: dirPath }) => {
     try {
-      const safeDir = getWorkspacePath(dirPath);
-      return await readdir(safeDir);
+      const resolved = getWorkspacePath(dirPath);
+      const entries = await readdir(resolved, { recursive: true });
+      return { files: entries };
     } catch (error: any) {
       return { error: error.message || String(error) };
     }
@@ -45,43 +48,35 @@ export const listDirTool = tool({
 });
 
 export const grepTool = tool({
-  description: "Search for patterns in files recursively using ripgrep (rg)",
+  description: "Search for patterns in files recursively using ripgrep",
   inputSchema: z.object({
-    pattern: z.string().min(1, "Pattern cannot be empty"),
-    dirPath: z.string().min(1, "Directory path cannot be empty"),
+    pattern: z.string().min(1, "Search pattern cannot be empty"),
+    path: z.string().default("."),
   }),
-  execute: async ({ pattern, dirPath }) => {
+  execute: async ({ pattern, path: searchPath }) => {
     try {
-      const safeDir = getWorkspacePath(dirPath);
-      const isLinux = process.platform === "linux";
-      const escapedPattern = she.quote(pattern);
-      const escapedDir = she.quote(safeDir);
-      const shellCommand = `rg -n --no-heading --color=never ${escapedPattern} ${escapedDir}`;
+      const resolved = getWorkspacePath(searchPath);
+      const escaped = she.escape(pattern);
+      const { stdout } = await $`rg --json ${escaped} ${resolved}`.nothrow().quiet();
+      const output = stdout.toString();
+      const lines = output.split("\n").filter(Boolean);
+      const results = lines
+        .map((line) => {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.type === "match") {
+              return {
+                file: parsed.data.path.text,
+                line: parsed.data.line_number,
+                text: parsed.data.submatches.map((m: any) => m.match.text).join(", "),
+              };
+            }
+          } catch {}
+          return null;
+        })
+        .filter(Boolean);
 
-      const cmd = isLinux
-        ? ["runuser", "-u", "agent-sandbox", "--", "bash", "-c", shellCommand]
-        : ["bash", "-c", shellCommand];
-
-      const proc = Bun.spawn({
-        cmd,
-        timeout: 20000,
-        stdout: "pipe",
-        stderr: "pipe",
-        env: {
-          PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-          HOME: "/home/agent-sandbox",
-          LANG: "en_US.UTF-8",
-        },
-      });
-
-      const exitCode = await proc.exited;
-      const stdout = await new Response(proc.stdout).text();
-
-      if (exitCode === 1) {
-        return "No matches found.";
-      }
-
-      return stdout;
+      return { results: results.slice(0, 50) };
     } catch (error: any) {
       return { error: error.message || String(error) };
     }
@@ -89,17 +84,16 @@ export const grepTool = tool({
 });
 
 export const replaceFileContentTool = tool({
-  description:
-    "Replace the entire content of a file or create a new file with the specified content",
+  description: "Create a new file or replace the entire content of an existing file",
   inputSchema: z.object({
-    filePath: z.string().min(1, "File path cannot be empty"),
+    path: z.string().min(1, "File path cannot be empty"),
     content: z.string(),
   }),
-  execute: async ({ filePath, content }) => {
+  execute: async ({ path: filePath, content }) => {
     try {
-      const safePath = getWorkspacePath(filePath);
-      await Bun.write(safePath, content);
-      return { success: true, filePath };
+      const resolved = getWorkspacePath(filePath);
+      await Bun.write(resolved, content);
+      return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message || String(error) };
     }
