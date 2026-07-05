@@ -2,7 +2,7 @@ import os from "node:os";
 import fs from "node:fs";
 import path from "node:path";
 
-export async function createDevPrompt(_model: string, customInstructions?: string) {
+export function createDevPrompt(_model: string, customInstructions?: string) {
   const osVersion = `${os.platform()} ${os.release()}`;
   const shell = process.env.SHELL || "/bin/sh";
   const workingDir = process.cwd();
