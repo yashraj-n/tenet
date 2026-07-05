@@ -1,40 +1,24 @@
 import { z } from "zod";
-import { getGithubOctokit } from "../../lib/github";
 import { publicProcedure, protectedProcedure, createTRPCRouter } from "./init";
 import { encrypt } from "../../lib/crypto.server";
 import { prisma } from "../../db";
 import crypto from "node:crypto";
 import { startAgentJob } from "../../lib/agent-job.server";
+import { getInstalledRepos, getInstallationOctokitForRepo } from "../../lib/github-app.server";
 
 export const appRouter = createTRPCRouter({
   test: publicProcedure.query(() => {
     return "Hello World";
   }),
 
-  getRepos: protectedProcedure.query(async ({ ctx }) => {
-    const octokit = await getGithubOctokit(ctx.user.id);
-    const { data: repos } = await octokit.rest.repos.listForAuthenticatedUser({
-      type: "all",
-      sort: "updated",
-      direction: "desc",
-      per_page: 100,
-    });
-
-    return repos.map((repo) => ({
-      id: String(repo.id),
-      name: repo.name,
-      fullName: repo.full_name,
-      description: repo.description ?? undefined,
-      stars: repo.stargazers_count || 0,
-      language: repo.language || "TypeScript",
-      openIssuesCount: repo.open_issues_count || 0,
-    }));
+  getRepos: protectedProcedure.query(async () => {
+    return getInstalledRepos();
   }),
 
   getIssues: protectedProcedure
     .input(z.object({ owner: z.string(), repo: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const octokit = await getGithubOctokit(ctx.user.id);
+    .query(async ({ input }) => {
+      const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
       const { data: issues } = await octokit.rest.issues.listForRepo({
         owner: input.owner,
         repo: input.repo,

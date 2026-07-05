@@ -252,7 +252,7 @@ function DashboardLayout() {
               Can't see your repository?
             </span>
             <a
-              href="https://github.com/apps/tenet-agent"
+              href="https://github.com/apps/tenet-ai-agent"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[11px] font-mono text-[#eca8d6] hover:text-[#eca8d6]/80 hover:underline mt-1.5 transition-colors cursor-pointer"
