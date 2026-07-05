@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Terminal,
@@ -10,60 +9,19 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import type { Run } from "@/lib/types";
+import { useTRPC } from "../../integrations/trpc/react";
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_dashboard/dashboard/runs")({
   component: RunsPage,
 });
 
 function RunsPage() {
-  const [runs, setRuns] = useState<Run[]>([]);
+  const trpc = useTRPC();
+  const { data: runs = [], isLoading } = useQuery(trpc.getRuns.queryOptions());
 
-  const loadRuns = () => {
-    const stored = localStorage.getItem("tenet_runs");
-    if (stored) {
-      try {
-        setRuns(JSON.parse(stored));
-      } catch {
-        setRuns([]);
-      }
-    } else {
-      setRuns([]);
-    }
-  };
-
-  useEffect(() => {
-    loadRuns();
-    window.addEventListener("tenet_runs_update", loadRuns);
-    return () => window.removeEventListener("tenet_runs_update", loadRuns);
-  }, []);
-
-  // Simulating active runner job -> complete in 7 seconds
-  useEffect(() => {
-    const runningJob = runs.find((r) => r.status === "running");
-    if (runningJob) {
-      const timer = setTimeout(() => {
-        const updated = runs.map((r) => {
-          if (r.id === runningJob.id) {
-            return {
-              ...r,
-              status: "completed" as const,
-              duration: "42s",
-              prLink: `https://github.com/${r.repoName}/pull/${r.issueNumber + 1}`,
-              triggeredAt: "1 min ago",
-            };
-          }
-          return r;
-        });
-        localStorage.setItem("tenet_runs", JSON.stringify(updated));
-        setRuns(updated);
-      }, 7000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [runs]);
-
-  const getStatusBadge = (status: Run["status"]) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "running":
         return (
@@ -93,7 +51,24 @@ function RunsPage() {
             <span>failed</span>
           </div>
         );
+      default:
+        return null;
     }
+  };
+
+  const getDuration = (run: any) => {
+    if (run.status === "running" || run.status === "queued") {
+      return "--";
+    }
+    const start = new Date(run.createdAt).getTime();
+    const end = new Date(run.updatedAt).getTime();
+    const diffSeconds = Math.round((end - start) / 1000);
+    if (diffSeconds < 60) {
+      return `${diffSeconds}s`;
+    }
+    const minutes = Math.floor(diffSeconds / 60);
+    const seconds = diffSeconds % 60;
+    return `${minutes}m ${seconds}s`;
   };
 
   return (
@@ -110,7 +85,14 @@ function RunsPage() {
 
       {/* Runs List */}
       <div className="space-y-4">
-        {runs.length > 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 select-none">
+            <Loader2 className="w-8 h-8 text-[#eca8d6] animate-spin mb-3" />
+            <p className="text-xs font-mono text-muted-foreground animate-pulse">
+              Loading runs history...
+            </p>
+          </div>
+        ) : runs.length > 0 ? (
           runs.map((run) => {
             const issueLink = `https://github.com/${run.repoName}/issues/${run.issueNumber}`;
             return (
@@ -138,15 +120,23 @@ function RunsPage() {
                     {run.issueTitle}
                   </a>
 
+                  {run.errorMessage && (
+                    <p className="text-xs font-mono text-red-400 mt-1 max-w-2xl truncate">
+                      Error: {run.errorMessage}
+                    </p>
+                  )}
+
                   {/* Metadata Row */}
                   <div className="flex items-center gap-4 text-[11px] text-muted-foreground/50 font-mono mt-1">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{run.duration}</span>
+                      <span>{getDuration(run)}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
-                      <span>{run.triggeredAt}</span>
+                      <span>
+                        {formatDistanceToNow(new Date(run.createdAt), { addSuffix: true })}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -183,4 +173,5 @@ function RunsPage() {
     </div>
   );
 }
+
 export default RunsPage;

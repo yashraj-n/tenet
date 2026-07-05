@@ -18,6 +18,7 @@ model User {
   sessions        Session[]
   accounts        Account[]
   providerConfigs ProviderConfig[]
+  runs            Run[]
 
   @@map("user")
 }
@@ -80,4 +81,22 @@ model ProviderConfig {
 
   @@unique([userId, provider])
   @@map("provider_config")
+}
+
+model Run {
+  id            String   @id @map("_id")
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repoOwner     String
+  repoName      String
+  issueNumber   Int
+  issueTitle    String
+  status        String   // "queued" | "running" | "completed" | "failed"
+  executionName String?
+  prLink        String?
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("run")
 }

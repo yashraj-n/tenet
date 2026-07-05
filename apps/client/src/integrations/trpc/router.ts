@@ -175,15 +175,64 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const result = await startAgentJob({
+      const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
+      const { data: issue } = await octokit.rest.issues.get({
         owner: input.owner,
         repo: input.repo,
-        issueNumber: input.issueNumber,
-        userId: ctx.user.id,
-        customInstructions: input.customInstructions,
+        issue_number: parseInt(input.issueNumber),
       });
-      return result;
+
+      const runId = crypto.randomUUID();
+      const run = await prisma.run.create({
+        data: {
+          id: runId,
+          userId: ctx.user.id,
+          repoOwner: input.owner,
+          repoName: `${input.owner}/${input.repo}`,
+          issueNumber: parseInt(input.issueNumber),
+          issueTitle: issue.title,
+          status: "queued",
+        },
+      });
+
+      try {
+        const result = await startAgentJob({
+          owner: input.owner,
+          repo: input.repo,
+          issueNumber: input.issueNumber,
+          userId: ctx.user.id,
+          runId: run.id,
+          customInstructions: input.customInstructions,
+        });
+
+        await prisma.run.update({
+          where: { id: run.id },
+          data: {
+            status: "running",
+            executionName: result.executionName,
+          },
+        });
+
+        return { runId: run.id, executionName: result.executionName };
+      } catch (err: any) {
+        await prisma.run.update({
+          where: { id: run.id },
+          data: {
+            status: "failed",
+            errorMessage: err.message || String(err),
+          },
+        });
+        throw err;
+      }
     }),
+
+  getRuns: protectedProcedure.query(async ({ ctx }) => {
+    return prisma.run.findMany({
+      where: { userId: ctx.user.id },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+  }),
 });
 
 export type TRPCRouter = typeof appRouter;

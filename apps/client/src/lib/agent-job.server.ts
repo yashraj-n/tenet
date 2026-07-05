@@ -9,6 +9,7 @@ export async function startAgentJob(opts: {
   repo: string;
   issueNumber: string;
   userId: string;
+  runId: string;
   customInstructions?: string;
 }) {
   const app = new App({
@@ -48,6 +49,9 @@ export async function startAgentJob(opts: {
             { name: "APP_ID", value: env.APP_ID },
             { name: "PRIVATE_KEY", value: env.PRIVATE_KEY },
             { name: "CUSTOM_INSTRUCTIONS", value: opts.customInstructions ?? "" },
+            { name: "RUN_ID", value: opts.runId },
+            { name: "CALLBACK_URL", value: `${env.BETTER_AUTH_URL}/api/webhook/run-complete` },
+            { name: "SECRET_WEBHOOK_KEY", value: env.SECRET_WEBHOOK_KEY },
           ],
         },
       ],

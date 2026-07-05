@@ -21,12 +21,15 @@ export interface Repo {
 
 export interface Run {
   id: string;
+  userId: string;
+  repoOwner: string;
   repoName: string;
-  repoId: string;
   issueNumber: number;
   issueTitle: string;
   status: "queued" | "running" | "completed" | "failed";
-  triggeredAt: string;
-  duration: string;
-  prLink?: string;
+  executionName?: string | null;
+  prLink?: string | null;
+  errorMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
