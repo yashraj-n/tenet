@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, Sparkles, Loader2, XCircle } from "lucide-react";
 import type { Issue } from "@/lib/types";
 import { useTRPC } from "../../integrations/trpc/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface BuildModalProps {
   issue: Issue | null;
@@ -28,6 +28,7 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const runAgent = useMutation(trpc.runAgent.mutationOptions());
 
   useEffect(() => {
@@ -52,24 +53,7 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
         customInstructions: customInstructions || undefined,
       });
 
-      const storedRunsStr = localStorage.getItem("tenet_runs");
-      let currentRuns = [];
-      try {
-        if (storedRunsStr) currentRuns = JSON.parse(storedRunsStr);
-      } catch {}
-
-      const newRun = {
-        id: `run-${Date.now()}`,
-        repoName: issue.repoId,
-        repoId: issue.repoId,
-        issueNumber: issue.number,
-        issueTitle: issue.title,
-        status: "running" as const,
-        triggeredAt: "Just now",
-        duration: "--",
-      };
-      localStorage.setItem("tenet_runs", JSON.stringify([newRun, ...currentRuns]));
-      window.dispatchEvent(new Event("tenet_runs_update"));
+      queryClient.invalidateQueries(trpc.getRuns.queryFilter());
 
       setStep("success");
     } catch (err: any) {

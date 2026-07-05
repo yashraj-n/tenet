@@ -12,6 +12,7 @@ Instead of manually building, linting, formatting, or checking types, use the fo
 - **Format**: `bun run fmt` (runs `oxfmt` from root)
 - **Format Check**: `bun run fmt:check` (runs `oxfmt --check` from root)
 - **Do not commit and Push**: Do not commit and push unless said so
+- FOllow caveman principles and skills
 
 ## Developer Guidelines
 

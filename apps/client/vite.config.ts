@@ -10,6 +10,9 @@ import { nitro } from "nitro/vite";
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [devtools(), nitro({}), tailwindcss(), tanstackStart(), viteReact()],
+  server: {
+    allowedHosts: ["fb9f-123-201-245-150.ngrok-free.app"],
+  },
 });
 
 export default config;

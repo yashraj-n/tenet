@@ -35,6 +35,7 @@ const app = (app: Probot) => {
         method: "GET",
         headers: {
           Authorization: `Bearer ${env.SECRET_WEBHOOK_KEY}`,
+          "ngrok-skip-browser-warning": "tenet",
         },
       });
 
