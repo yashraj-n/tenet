@@ -33,3 +33,17 @@ export interface Run {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PullRequest {
+  id: string;
+  number: number;
+  title: string;
+  repoId: string;
+  labels: Array<{ name: string; color: string }>;
+  createdAt: string;
+  author: string;
+  draft: boolean;
+  sourceBranch: string;
+  targetBranch: string;
+  url: string;
+}
