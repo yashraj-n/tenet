@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/_dashboard")({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_dashboard")({
 function UserNav() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const defaultQuota = { limit: 2, used: 0 };
+  const defaultQuota = { limit: 2, used: 0, resetAt: null as string | null };
   const [quota, setQuota] = useState(defaultQuota);
 
   useEffect(() => {
@@ -39,6 +40,20 @@ function UserNav() {
     window.addEventListener("tenet_quota_update", handleUpdate);
     return () => window.removeEventListener("tenet_quota_update", handleUpdate);
   }, []);
+
+  const getResetTimeStr = () => {
+    if (!quota.resetAt) return "Resets in 2 days";
+    const nextReset = new Date(quota.resetAt).getTime() + 2 * 24 * 60 * 60 * 1000;
+    const diffMs = nextReset - Date.now();
+    if (diffMs <= 0) return "Resets soon";
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    if (diffHours >= 24) {
+      const diffDays = Math.floor(diffHours / 24);
+      const remainingHours = diffHours % 24;
+      return `Resets in ${diffDays}d ${remainingHours}h`;
+    }
+    return `Resets in ${diffHours}h`;
+  };
 
   if (isPending) {
     return <div className="h-9 w-9 rounded-full bg-foreground/10 animate-pulse" />;
@@ -68,34 +83,47 @@ function UserNav() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="relative h-9 w-9 rounded-full cursor-pointer focus:outline-none flex items-center justify-center group">
-          {/* Circular Progress Ring */}
-          <svg className="absolute inset-0 size-full -rotate-90">
-            {/* Track */}
-            <circle cx="18" cy="18" r="15" className="stroke-border/40 fill-none stroke-[2]" />
-            {/* Indicator */}
-            <circle
-              cx="18"
-              cy="18"
-              r="15"
-              className={`fill-none stroke-[2] transition-all duration-300 ${
-                remaining === 0 ? "stroke-red-400/80" : "stroke-emerald-400"
-              }`}
-              strokeDasharray={94.2}
-              strokeDashoffset={94.2 * (1 - percentage)}
-            />
-          </svg>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button className="relative h-9 w-9 rounded-full cursor-pointer focus:outline-none flex items-center justify-center group">
+              {/* Circular Progress Ring */}
+              <svg className="absolute inset-0 size-full -rotate-90">
+                {/* Track */}
+                <circle cx="18" cy="18" r="15" className="stroke-border/40 fill-none stroke-[2]" />
+                {/* Indicator */}
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="15"
+                  className={`fill-none stroke-[2] transition-all duration-300 ${
+                    remaining === 0 ? "stroke-red-400/80" : "stroke-emerald-400"
+                  }`}
+                  strokeDasharray={94.2}
+                  strokeDashoffset={94.2 * (1 - percentage)}
+                />
+              </svg>
 
-          {/* Avatar (inset inside the ring) */}
-          <Avatar className="h-7 w-7">
-            {session.user.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
-            <AvatarFallback className="bg-muted text-[10px] font-semibold text-foreground/80 flex items-center justify-center">
-              {initial}
-            </AvatarFallback>
-          </Avatar>
-        </button>
-      </DropdownMenuTrigger>
+              {/* Avatar (inset inside the ring) */}
+              <Avatar className="h-7 w-7">
+                {session.user.image && (
+                  <AvatarImage src={session.user.image} alt={session.user.name} />
+                )}
+                <AvatarFallback className="bg-muted text-[10px] font-semibold text-foreground/80 flex items-center justify-center">
+                  {initial}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          align="end"
+          className="bg-popover text-popover-foreground border border-border px-3 py-1.5 text-[11px] font-mono"
+        >
+          Runs remaining: {remaining} / {limit} ({getResetTimeStr()})
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
@@ -106,15 +134,26 @@ function UserNav() {
               <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
             </div>
 
-            {/* Runs left display */}
-            <div className="pt-1.5 border-t border-border/40 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-              <span>Runs remaining:</span>
-              <span
-                className={`font-semibold ${remaining === 0 ? "text-red-400" : "text-emerald-400"}`}
+            {/* Runs left display with high fidelity Tooltip */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="pt-1.5 border-t border-border/40 flex items-center justify-between text-[11px] font-mono text-muted-foreground cursor-help select-none">
+                  <span>Runs remaining:</span>
+                  <span
+                    className={`font-semibold ${remaining === 0 ? "text-red-400" : "text-emerald-400"}`}
+                  >
+                    {remaining} / {limit}
+                  </span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                align="center"
+                className="bg-popover text-popover-foreground border border-border px-3 py-1.5 text-[11px] font-mono"
               >
-                {remaining} / {limit}
-              </span>
-            </div>
+                {getResetTimeStr()}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -135,6 +174,22 @@ function DashboardLayout() {
   const [searchQuery, setSearchQuery] = useState("");
   const trpc = useTRPC();
   const { data: repos = [], isLoading } = useQuery(trpc.getRepos.queryOptions());
+
+  const { data: quotaData } = useQuery(trpc.getQuota.queryOptions());
+
+  useEffect(() => {
+    if (quotaData) {
+      localStorage.setItem(
+        "tenet_quota",
+        JSON.stringify({
+          limit: quotaData.maxQuota,
+          used: quotaData.quotaUsed,
+          resetAt: quotaData.quotaResetAt,
+        }),
+      );
+      window.dispatchEvent(new Event("tenet_quota_update"));
+    }
+  }, [quotaData]);
 
   const filteredRepos = repos.filter((repo: any) =>
     repo.name.toLowerCase().includes(searchQuery.toLowerCase()),
