@@ -7,7 +7,9 @@ import { decrypt } from "./crypto.server";
 export async function startAgentJob(opts: {
   owner: string;
   repo: string;
-  issueNumber: string;
+  issueNumber?: string;
+  prNumber?: string;
+  mode?: "issue_build" | "pr_review";
   userId: string;
   runId: string;
   customInstructions?: string;
@@ -32,6 +34,7 @@ export async function startAgentJob(opts: {
   }
 
   const apiKey = decrypt(config.encryptedKey, config.iv, config.salt);
+  const mode = opts.mode ?? "issue_build";
 
   const [operation] = await gcpJobsClient.runJob({
     name: `projects/${env.GOOGLE_PROJECT_ID}/locations/${env.GOOGLE_PROJECT_REGION}/jobs/${env.GOOGLE_CLOUD_RUN_WORKER_NAME}`,
@@ -40,7 +43,10 @@ export async function startAgentJob(opts: {
         {
           env: [
             { name: "REPO_NAME", value: opts.repo },
-            { name: "ISSUE_ID", value: opts.issueNumber },
+            { name: "ISSUE_ID", value: opts.issueNumber ?? "" },
+            { name: "PR_NUMBER", value: opts.prNumber ?? "" },
+            { name: "AGENT_MODE", value: mode },
+            { name: "DISABLE_WRITE_TOOLS", value: mode === "pr_review" ? "true" : "" },
             { name: "OWNER_NAME", value: opts.owner },
             { name: "INSTALLATION_ID", value: installationId },
             { name: "LLM_PROVIDER", value: config.provider },

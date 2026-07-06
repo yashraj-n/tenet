@@ -15,9 +15,10 @@ import { useQuery } from "@tanstack/react-query";
 import { IssueRow } from "@/components/dashboard/issue-row";
 import { PRRow } from "@/components/dashboard/pr-row";
 import { BuildModal } from "@/components/dashboard/build-modal";
+import { ReviewModal } from "@/components/dashboard/review-modal";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTRPC } from "../../integrations/trpc/react";
-import type { Issue } from "@/lib/types";
+import type { Issue, PullRequest } from "@/lib/types";
 
 export const Route = createFileRoute("/_dashboard/dashboard/$repoId")({
   component: RepoDetail,
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/_dashboard/dashboard/$repoId")({
 function RepoDetail() {
   const { repoId } = useParams({ from: "/_dashboard/dashboard/$repoId" });
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [selectedPR, setSelectedPR] = useState<PullRequest | null>(null);
   const [isBuildOpen, setIsBuildOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [issueFilter, setIssueFilter] = useState("");
 
   const trpc = useTRPC();
@@ -47,6 +50,11 @@ function RepoDetail() {
   const handleBuildTrigger = (issue: any) => {
     setSelectedIssue(issue);
     setIsBuildOpen(true);
+  };
+
+  const handleReviewTrigger = (pr: PullRequest) => {
+    setSelectedPR(pr);
+    setIsReviewOpen(true);
   };
 
   if (isLoadingRepos) {
@@ -206,7 +214,7 @@ function RepoDetail() {
           ) : repoPulls.length > 0 ? (
             <div className="flex flex-col gap-3">
               {repoPulls.map((pr: any) => (
-                <PRRow key={pr.id} pr={pr} />
+                <PRRow key={pr.id} pr={pr} onReviewTrigger={handleReviewTrigger} />
               ))}
             </div>
           ) : (
@@ -228,6 +236,14 @@ function RepoDetail() {
         onClose={() => {
           setIsBuildOpen(false);
           setSelectedIssue(null);
+        }}
+      />
+      <ReviewModal
+        pr={selectedPR}
+        isOpen={isReviewOpen}
+        onClose={() => {
+          setIsReviewOpen(false);
+          setSelectedPR(null);
         }}
       />
     </div>

@@ -8,10 +8,12 @@ import {
   GitPullRequest,
   Clock,
   Calendar,
+  ShieldCheck,
 } from "lucide-react";
 import { useTRPC } from "../../integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { reviewResultSchema } from "@/lib/review-result";
 
 export const Route = createFileRoute("/_dashboard/dashboard/runs")({
   component: RunsPage,
@@ -94,69 +96,136 @@ function RunsPage() {
           </div>
         ) : runs.length > 0 ? (
           runs.map((run) => {
-            const issueLink = `https://github.com/${run.repoName}/issues/${run.issueNumber}`;
+            const isReview = run.mode === "pr_review";
+            const itemNumber = isReview ? run.prNumber : run.issueNumber;
+            const itemTitle = isReview ? run.prTitle : run.issueTitle;
+            const itemLink = `https://github.com/${run.repoName}/${isReview ? "pull" : "issues"}/${itemNumber}`;
+            const review = reviewResultSchema.safeParse(run.reviewJson).success
+              ? reviewResultSchema.parse(run.reviewJson)
+              : null;
             return (
               <div
                 key={run.id}
-                className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300"
+                className="flex flex-col gap-4 p-5 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300"
               >
-                <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] font-mono text-muted-foreground/60">
-                      {run.repoName}
-                    </span>
-                    <span className="text-xs text-muted-foreground/40 font-mono">&middot;</span>
-                    <span className="text-xs text-muted-foreground/60 font-mono">
-                      #{run.issueNumber}
-                    </span>
-                  </div>
-
-                  <a
-                    href={issueLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-sans font-medium text-foreground/90 hover:text-[#eca8d6] hover:underline transition-colors truncate cursor-pointer"
-                  >
-                    {run.issueTitle}
-                  </a>
-
-                  {run.errorMessage && (
-                    <p className="text-xs font-mono text-red-400 mt-1 max-w-2xl truncate">
-                      Error: {run.errorMessage}
-                    </p>
-                  )}
-
-                  {/* Metadata Row */}
-                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground/50 font-mono mt-1">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{getDuration(run)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>
-                        {formatDistanceToNow(new Date(run.createdAt), { addSuffix: true })}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] font-mono text-muted-foreground/60">
+                        {run.repoName}
                       </span>
+                      <span className="text-xs text-muted-foreground/40 font-mono">&middot;</span>
+                      <span className="text-xs text-muted-foreground/60 font-mono">
+                        {isReview ? "PR" : "Issue"} #{itemNumber}
+                      </span>
+                      {isReview && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#eca8d6] border border-[#eca8d6]/20 bg-[#eca8d6]/5 rounded px-2 py-0.5">
+                          <ShieldCheck className="w-3 h-3" />
+                          review
+                        </span>
+                      )}
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-between md:justify-end gap-6 shrink-0 border-t border-border/20 md:border-0 pt-3 md:pt-0">
-                  {getStatusBadge(run.status)}
-
-                  {run.status === "completed" && run.prLink && (
                     <a
-                      href={run.prLink}
+                      href={itemLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-mono font-medium rounded-md bg-[#eca8d6]/5 text-[#eca8d6] border border-[#eca8d6]/20 px-3 py-1.5 hover:bg-[#eca8d6]/15 hover:border-[#eca8d6]/40 transition-colors duration-200 cursor-pointer"
+                      className="text-sm font-sans font-medium text-foreground/90 hover:text-[#eca8d6] hover:underline transition-colors truncate cursor-pointer"
                     >
-                      <GitPullRequest className="w-3.5 h-3.5" />
-                      <span>PR Shipped</span>
-                      <ExternalLink className="w-3 h-3" />
+                      {itemTitle}
                     </a>
-                  )}
+
+                    {run.errorMessage && (
+                      <p className="text-xs font-mono text-red-400 mt-1 max-w-2xl truncate">
+                        Error: {run.errorMessage}
+                      </p>
+                    )}
+
+                    {/* Metadata Row */}
+                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground/50 font-mono mt-1">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{getDuration(run)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>
+                          {formatDistanceToNow(new Date(run.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between md:justify-end gap-6 shrink-0 border-t border-border/20 md:border-0 pt-3 md:pt-0">
+                    {getStatusBadge(run.status)}
+
+                    {run.status === "completed" && run.prLink && (
+                      <a
+                        href={run.prLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-mono font-medium rounded-md bg-[#eca8d6]/5 text-[#eca8d6] border border-[#eca8d6]/20 px-3 py-1.5 hover:bg-[#eca8d6]/15 hover:border-[#eca8d6]/40 transition-colors duration-200 cursor-pointer"
+                      >
+                        <GitPullRequest className="w-3.5 h-3.5" />
+                        <span>PR Shipped</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
+
+                {review && (
+                  <div className="grid gap-4 border-t border-border/30 pt-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-foreground">
+                        {review.summary.title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground italic mt-1">
+                        {review.summary.poem}
+                      </p>
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        {review.summary.prInfo.map((line) => (
+                          <li key={line}>- {line}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="grid gap-2">
+                      {review.issues.length === 0 ? (
+                        <p className="text-xs font-mono text-emerald-400">
+                          No review issues found. Recommendation: {review.verdict.recommendation}
+                        </p>
+                      ) : (
+                        review.issues.map((issue) => (
+                          <div
+                            key={`${issue.file}:${issue.line}:${issue.title}`}
+                            className="rounded-md border border-border/40 bg-background/40 p-3"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[10px] font-mono uppercase text-[#eca8d6]">
+                                {issue.severity}
+                              </span>
+                              <span className="text-[10px] font-mono text-muted-foreground">
+                                {issue.category}
+                              </span>
+                              <span className="text-[10px] font-mono text-muted-foreground truncate">
+                                {issue.file}
+                                {issue.line ? `:${issue.line}` : ""}
+                              </span>
+                            </div>
+                            <h5 className="text-sm font-medium text-foreground mt-1">
+                              {issue.title}
+                            </h5>
+                            <p className="text-xs text-muted-foreground mt-1">{issue.details}</p>
+                            <p className="text-xs font-mono text-muted-foreground mt-2 rounded bg-foreground/[0.03] p-2">
+                              Autofix: {issue.autofixPrompt}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })

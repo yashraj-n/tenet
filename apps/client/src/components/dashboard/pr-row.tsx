@@ -1,11 +1,12 @@
-import { GitPullRequest, GitBranch, ExternalLink } from "lucide-react";
+import { GitPullRequest, GitBranch, ExternalLink, SearchCheck } from "lucide-react";
 import type { PullRequest } from "@/lib/types";
 
 interface PRRowProps {
   pr: PullRequest;
+  onReviewTrigger?: (pr: PullRequest) => void;
 }
 
-export function PRRow({ pr }: PRRowProps) {
+export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
   return (
     <div className="flex items-center justify-between gap-6 p-4.5 px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300 group">
       <div className="flex items-start gap-4.5 min-w-0 flex-1">
@@ -72,18 +73,30 @@ export function PRRow({ pr }: PRRowProps) {
         </div>
       </div>
 
-      {/* View Link Button */}
-      <a
-        href={pr.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 shrink-0 transition-all duration-200 cursor-pointer"
-      >
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors duration-200">
-          View PR
-        </span>
-        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-[#eca8d6] transition-colors" />
-      </a>
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => onReviewTrigger?.(pr)}
+          className="flex items-center justify-center bg-[#eca8d6]/5 hover:bg-[#eca8d6]/15 text-[#eca8d6] border border-[#eca8d6]/20 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
+        >
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">
+            Code Review
+          </span>
+          <SearchCheck className="w-3.5 h-3.5" />
+        </button>
+
+        <a
+          href={pr.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
+        >
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors duration-200">
+            View PR
+          </span>
+          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-[#eca8d6] transition-colors" />
+        </a>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import type { ReviewResult } from "./review-result";
+
 export interface Issue {
   id: string;
   number: number;
@@ -22,10 +24,14 @@ export interface Repo {
 export interface Run {
   id: string;
   userId: string;
+  mode: "issue_build" | "pr_review";
   repoOwner: string;
   repoName: string;
-  issueNumber: number;
-  issueTitle: string;
+  issueNumber?: number | null;
+  issueTitle?: string | null;
+  prNumber?: number | null;
+  prTitle?: string | null;
+  reviewJson?: ReviewResult | null;
   status: "queued" | "running" | "completed" | "failed";
   executionName?: string | null;
   prLink?: string | null;
