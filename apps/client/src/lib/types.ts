@@ -19,6 +19,7 @@ export interface Repo {
   stars: number;
   language: string;
   openIssuesCount: number;
+  openPullsCount: number;
 }
 
 export interface Run {

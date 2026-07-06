@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Terminal,
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/_dashboard/dashboard/runs")({
 function RunsPage() {
   const trpc = useTRPC();
   const { data: runs = [], isLoading } = useQuery(trpc.getRuns.queryOptions());
+  const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -174,58 +176,82 @@ function RunsPage() {
                   </div>
                 </div>
 
-                {review && (
-                  <div className="grid gap-4 border-t border-border/30 pt-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground">
-                        {review.summary.title}
-                      </h4>
-                      <p className="text-xs text-muted-foreground italic mt-1">
-                        {review.summary.poem}
-                      </p>
-                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                        {review.summary.prInfo.map((line) => (
-                          <li key={line}>- {line}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="grid gap-2">
-                      {review.issues.length === 0 ? (
-                        <p className="text-xs font-mono text-emerald-400">
-                          No review issues found. Recommendation: {review.verdict.recommendation}
-                        </p>
-                      ) : (
-                        review.issues.map((issue) => (
-                          <div
-                            key={`${issue.file}:${issue.line}:${issue.title}`}
-                            className="rounded-md border border-border/40 bg-background/40 p-3"
-                          >
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-[10px] font-mono uppercase text-[#eca8d6]">
-                                {issue.severity}
-                              </span>
-                              <span className="text-[10px] font-mono text-muted-foreground">
-                                {issue.category}
-                              </span>
-                              <span className="text-[10px] font-mono text-muted-foreground truncate">
-                                {issue.file}
-                                {issue.line ? `:${issue.line}` : ""}
-                              </span>
+                {review &&
+                  (() => {
+                    const isCollapsed = !expandedReviews[run.id];
+                    return (
+                      <div className="flex flex-col gap-3 border-t border-border/30 pt-4">
+                        <button
+                          onClick={() =>
+                            setExpandedReviews((p) => ({ ...p, [run.id]: !p[run.id] }))
+                          }
+                          className="flex items-center gap-1.5 text-xs font-mono text-[#eca8d6] hover:text-[#eca8d6]/80 transition-colors cursor-pointer w-fit"
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>
+                            {isCollapsed
+                              ? `Show Security Review (${review.issues.length} issues)`
+                              : "Hide Security Review"}
+                          </span>
+                        </button>
+                        {!isCollapsed && (
+                          <div className="grid gap-4 animate-fade-in">
+                            <div>
+                              <h4 className="text-sm font-medium text-foreground">
+                                {review.summary.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground italic mt-1">
+                                {review.summary.poem}
+                              </p>
+                              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                                {review.summary.prInfo.map((line) => (
+                                  <li key={line}>- {line}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <h5 className="text-sm font-medium text-foreground mt-1">
-                              {issue.title}
-                            </h5>
-                            <p className="text-xs text-muted-foreground mt-1">{issue.details}</p>
-                            <p className="text-xs font-mono text-muted-foreground mt-2 rounded bg-foreground/[0.03] p-2">
-                              Autofix: {issue.autofixPrompt}
-                            </p>
+
+                            <div className="grid gap-2">
+                              {review.issues.length === 0 ? (
+                                <p className="text-xs font-mono text-emerald-400">
+                                  No review issues found. Recommendation:{" "}
+                                  {review.verdict.recommendation}
+                                </p>
+                              ) : (
+                                review.issues.map((issue) => (
+                                  <div
+                                    key={`${issue.file}:${issue.line}:${issue.title}`}
+                                    className="rounded-md border border-border/40 bg-background/40 p-3"
+                                  >
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="text-[10px] font-mono uppercase text-[#eca8d6]">
+                                        {issue.severity}
+                                      </span>
+                                      <span className="text-[10px] font-mono text-muted-foreground">
+                                        {issue.category}
+                                      </span>
+                                      <span className="text-[10px] font-mono text-muted-foreground truncate">
+                                        {issue.file}
+                                        {issue.line ? `:${issue.line}` : ""}
+                                      </span>
+                                    </div>
+                                    <h5 className="text-sm font-medium text-foreground mt-1">
+                                      {issue.title}
+                                    </h5>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {issue.details}
+                                    </p>
+                                    <p className="text-xs font-mono text-muted-foreground mt-2 rounded bg-foreground/[0.03] p-2">
+                                      Autofix: {issue.autofixPrompt}
+                                    </p>
+                                  </div>
+                                ))
+                              )}
+                            </div>
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
+                        )}
+                      </div>
+                    );
+                  })()}
               </div>
             );
           })

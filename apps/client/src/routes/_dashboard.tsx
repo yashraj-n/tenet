@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/_dashboard")({
@@ -83,47 +82,34 @@ function UserNav() {
 
   return (
     <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <button className="relative h-9 w-9 rounded-full cursor-pointer focus:outline-none flex items-center justify-center group">
-              {/* Circular Progress Ring */}
-              <svg className="absolute inset-0 size-full -rotate-90">
-                {/* Track */}
-                <circle cx="18" cy="18" r="15" className="stroke-border/40 fill-none stroke-[2]" />
-                {/* Indicator */}
-                <circle
-                  cx="18"
-                  cy="18"
-                  r="15"
-                  className={`fill-none stroke-[2] transition-all duration-300 ${
-                    remaining === 0 ? "stroke-red-400/80" : "stroke-emerald-400"
-                  }`}
-                  strokeDasharray={94.2}
-                  strokeDashoffset={94.2 * (1 - percentage)}
-                />
-              </svg>
+      <DropdownMenuTrigger asChild>
+        <button className="relative h-9 w-9 rounded-full cursor-pointer focus:outline-none flex items-center justify-center group">
+          {/* Circular Progress Ring */}
+          <svg className="absolute inset-0 size-full -rotate-90">
+            {/* Track */}
+            <circle cx="18" cy="18" r="15" className="stroke-border/40 fill-none stroke-[2]" />
+            {/* Indicator */}
+            <circle
+              cx="18"
+              cy="18"
+              r="15"
+              className={`fill-none stroke-[2] transition-all duration-300 ${
+                remaining === 0 ? "stroke-red-400/80" : "stroke-emerald-400"
+              }`}
+              strokeDasharray={94.2}
+              strokeDashoffset={94.2 * (1 - percentage)}
+            />
+          </svg>
 
-              {/* Avatar (inset inside the ring) */}
-              <Avatar className="h-7 w-7">
-                {session.user.image && (
-                  <AvatarImage src={session.user.image} alt={session.user.name} />
-                )}
-                <AvatarFallback className="bg-muted text-[10px] font-semibold text-foreground/80 flex items-center justify-center">
-                  {initial}
-                </AvatarFallback>
-              </Avatar>
-            </button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          align="end"
-          className="bg-popover text-popover-foreground border border-border px-3 py-1.5 text-[11px] font-mono"
-        >
-          Runs remaining: {remaining} / {limit} ({getResetTimeStr()})
-        </TooltipContent>
-      </Tooltip>
+          {/* Avatar (inset inside the ring) */}
+          <Avatar className="h-7 w-7">
+            {session.user.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
+            <AvatarFallback className="bg-muted text-[10px] font-semibold text-foreground/80 flex items-center justify-center">
+              {initial}
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
@@ -134,26 +120,20 @@ function UserNav() {
               <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
             </div>
 
-            {/* Runs left display with high fidelity Tooltip */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="pt-1.5 border-t border-border/40 flex items-center justify-between text-[11px] font-mono text-muted-foreground cursor-help select-none">
-                  <span>Runs remaining:</span>
-                  <span
-                    className={`font-semibold ${remaining === 0 ? "text-red-400" : "text-emerald-400"}`}
-                  >
-                    {remaining} / {limit}
-                  </span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                align="center"
-                className="bg-popover text-popover-foreground border border-border px-3 py-1.5 text-[11px] font-mono"
-              >
+            {/* Runs left display */}
+            <div className="pt-1.5 border-t border-border/40 space-y-1 text-[11px] font-mono text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Runs remaining:</span>
+                <span
+                  className={`font-semibold ${remaining === 0 ? "text-red-400" : "text-emerald-400"}`}
+                >
+                  {remaining} / {limit}
+                </span>
+              </div>
+              <div className="text-[10px] text-muted-foreground/60 text-right">
                 {getResetTimeStr()}
-              </TooltipContent>
-            </Tooltip>
+              </div>
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

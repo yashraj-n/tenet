@@ -1,5 +1,6 @@
 import { App } from "octokit";
 import { env } from "#/env";
+import type { Repo } from "./types";
 
 function getApp() {
   return new App({
@@ -13,15 +14,7 @@ export async function getInstalledRepos() {
 
   const { data: installations } = await app.octokit.rest.apps.listInstallations();
 
-  const repos: Array<{
-    id: string;
-    name: string;
-    fullName: string;
-    description?: string;
-    stars: number;
-    language: string;
-    openIssuesCount: number;
-  }> = [];
+  const repos: Repo[] = [];
 
   for (const installation of installations) {
     const octokit = await app.getInstallationOctokit(installation.id);
@@ -30,6 +23,15 @@ export async function getInstalledRepos() {
     });
 
     for (const repo of data.repositories) {
+      const { data: pullsSearch } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${repo.full_name} is:pr state:open`,
+        per_page: 1,
+      });
+      const { data: issuesSearch } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${repo.full_name} is:issue state:open`,
+        per_page: 1,
+      });
+
       repos.push({
         id: String(repo.id),
         name: repo.name,
@@ -37,7 +39,8 @@ export async function getInstalledRepos() {
         description: repo.description ?? undefined,
         stars: repo.stargazers_count || 0,
         language: repo.language || "TypeScript",
-        openIssuesCount: repo.open_issues_count || 0,
+        openIssuesCount: issuesSearch.total_count,
+        openPullsCount: pullsSearch.total_count,
       });
     }
   }
