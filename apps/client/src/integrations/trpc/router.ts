@@ -57,6 +57,49 @@ export const appRouter = createTRPCRouter({
         });
     }),
 
+  getPullRequests: protectedProcedure
+    .input(z.object({ owner: z.string(), repo: z.string() }))
+    .query(async ({ input }) => {
+      const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
+      const { data: pulls } = await octokit.rest.pulls.list({
+        owner: input.owner,
+        repo: input.repo,
+        state: "open",
+        sort: "created",
+        direction: "desc",
+      });
+
+      return pulls.map((pr) => {
+        const labels = (pr.labels || []).map((lbl) => {
+          const name = typeof lbl === "string" ? lbl : lbl.name || "";
+          const lowercaseName = name.toLowerCase();
+          let color = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+          if (lowercaseName.includes("bug")) {
+            color = "bg-red-500/10 text-red-400 border-red-500/20";
+          } else if (lowercaseName.includes("enhancement") || lowercaseName.includes("feature")) {
+            color = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+          } else if (lowercaseName.includes("priority") || lowercaseName.includes("urgent")) {
+            color = "bg-orange-500/10 text-orange-400 border-orange-500/20";
+          }
+          return { name, color };
+        });
+
+        return {
+          id: String(pr.id),
+          number: pr.number,
+          title: pr.title,
+          repoId: `${input.owner}/${input.repo}`,
+          labels,
+          createdAt: pr.created_at,
+          author: pr.user?.login || "unknown",
+          draft: pr.draft || false,
+          sourceBranch: pr.head.ref,
+          targetBranch: pr.base.ref,
+          url: pr.html_url,
+        };
+      });
+    }),
+
   getAvailableModels: protectedProcedure.query(async () => {
     try {
       const res = await fetch("https://models.dev/models.json");
