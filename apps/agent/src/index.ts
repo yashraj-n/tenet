@@ -277,7 +277,7 @@ Additions: ${file.additions}
 Deletions: ${file.deletions}
 Patch:
 ${(file.patch || "").slice(0, 12000)}`,
-        )
+  )
   .join("\n\n")}`,
         seed: 0,
       });

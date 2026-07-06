@@ -42,7 +42,7 @@ export function RepoItem({ repo }: RepoItemProps) {
         </p>
       )}
 
-      <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground font-mono">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-muted-foreground font-mono">
         <div className="flex items-center gap-1.5">
           <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
           {repo.language}
@@ -50,6 +50,11 @@ export function RepoItem({ repo }: RepoItemProps) {
         {repo.openIssuesCount > 0 && (
           <div className="flex items-center gap-1 text-[#eca8d6]">
             <span>{repo.openIssuesCount} issues</span>
+          </div>
+        )}
+        {repo.openPullsCount > 0 && (
+          <div className="flex items-center gap-1 text-emerald-400">
+            <span>{repo.openPullsCount} PRs</span>
           </div>
         )}
       </div>
