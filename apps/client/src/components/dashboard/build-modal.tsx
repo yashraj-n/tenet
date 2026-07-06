@@ -54,6 +54,7 @@ export function BuildModal({ issue, isOpen, onClose }: BuildModalProps) {
       });
 
       queryClient.invalidateQueries(trpc.getRuns.queryFilter());
+      queryClient.invalidateQueries(trpc.getQuota.queryFilter());
 
       setStep("success");
     } catch (err: any) {

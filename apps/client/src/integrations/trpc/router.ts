@@ -1,10 +1,66 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, createTRPCRouter } from "./init";
 import { encrypt } from "../../lib/crypto.server";
 import { prisma } from "../../db";
 import crypto from "node:crypto";
 import { startAgentJob } from "../../lib/agent-job.server";
 import { getInstalledRepos, getInstallationOctokitForRepo } from "../../lib/github-app.server";
+
+async function checkAndUpdateQuota(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { maxQuota: true, quotaUsed: true, quotaResetAt: true },
+  });
+
+  if (!user) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "User not found",
+    });
+  }
+
+  const now = new Date();
+  const maxQuota = user.maxQuota ?? 2;
+  const quotaUsed = user.quotaUsed ?? 0;
+  const quotaResetAt = user.quotaResetAt ?? now;
+
+  if (user.maxQuota === null || user.quotaUsed === null || user.quotaResetAt === null) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        maxQuota,
+        quotaUsed,
+        quotaResetAt,
+      },
+    });
+  }
+
+  const resetInterval = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+  const timePassed = now.getTime() - quotaResetAt.getTime();
+
+  if (timePassed >= resetInterval) {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        quotaUsed: 0,
+        quotaResetAt: now,
+      },
+      select: { maxQuota: true, quotaUsed: true, quotaResetAt: true },
+    });
+    return {
+      maxQuota: updatedUser.maxQuota ?? 2,
+      quotaUsed: updatedUser.quotaUsed ?? 0,
+      quotaResetAt: updatedUser.quotaResetAt ?? now,
+    };
+  }
+
+  return {
+    maxQuota,
+    quotaUsed,
+    quotaResetAt,
+  };
+}
 
 export const appRouter = createTRPCRouter({
   test: publicProcedure.query(() => {
@@ -13,6 +69,10 @@ export const appRouter = createTRPCRouter({
 
   getRepos: protectedProcedure.query(async () => {
     return getInstalledRepos();
+  }),
+
+  getQuota: protectedProcedure.query(async ({ ctx }) => {
+    return checkAndUpdateQuota(ctx.user.id);
   }),
 
   getIssues: protectedProcedure
@@ -218,11 +278,24 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const quota = await checkAndUpdateQuota(ctx.user.id);
+      if (quota.quotaUsed >= quota.maxQuota) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Run quota exceeded. You have used ${quota.quotaUsed}/${quota.maxQuota} runs. Your quota resets every 2 days.`,
+        });
+      }
+
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
       const { data: issue } = await octokit.rest.issues.get({
         owner: input.owner,
         repo: input.repo,
         issue_number: parseInt(input.issueNumber),
+      });
+
+      await prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { quotaUsed: { increment: 1 } },
       });
 
       const runId = crypto.randomUUID();

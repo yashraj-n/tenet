@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-const defaultQuota = { limit: 2, used: 0 };
+const defaultQuota = { limit: 2, used: 0, resetAt: null as string | null };
 
 export function QuotaBadge() {
   const [quota, setQuota] = useState(defaultQuota);
@@ -23,6 +23,20 @@ export function QuotaBadge() {
   const remaining = quota.limit - quota.used;
   const hasQuota = remaining > 0;
 
+  const getResetTimeStr = () => {
+    if (!quota.resetAt) return "resets in 2d";
+    const nextReset = new Date(quota.resetAt).getTime() + 2 * 24 * 60 * 60 * 1000;
+    const diffMs = nextReset - Date.now();
+    if (diffMs <= 0) return "resets soon";
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    if (diffHours >= 24) {
+      const diffDays = Math.floor(diffHours / 24);
+      const remainingHours = diffHours % 24;
+      return `resets in ${diffDays}d ${remainingHours}h`;
+    }
+    return `resets in ${diffHours}h`;
+  };
+
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -33,7 +47,7 @@ export function QuotaBadge() {
         className={`w-1.5 h-1.5 rounded-full ${hasQuota ? "bg-emerald-400" : "bg-red-400 animate-pulse"}`}
       />
       {isHovered ? (
-        <span className="text-[#eca8d6] animate-fade-in text-[11px]">resets in 21h</span>
+        <span className="text-[#eca8d6] animate-fade-in text-[11px]">{getResetTimeStr()}</span>
       ) : (
         <div className="flex items-center gap-1">
           <span className="text-muted-foreground">runs left:</span>
