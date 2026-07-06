@@ -90,10 +90,14 @@ model Run {
   id            String   @id @map("_id")
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode          String   @default("issue_build")
   repoOwner     String
   repoName      String
-  issueNumber   Int
-  issueTitle    String
+  issueNumber   Int?
+  issueTitle    String?
+  prNumber      Int?
+  prTitle       String?
+  reviewJson    Json?
   status        String   // "queued" | "running" | "completed" | "failed"
   executionName String?
   prLink        String?

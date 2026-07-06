@@ -342,6 +342,79 @@ export const appRouter = createTRPCRouter({
       }
     }),
 
+  runPRReview: protectedProcedure
+    .input(
+      z.object({
+        owner: z.string().min(1),
+        repo: z.string().min(1),
+        prNumber: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const quota = await checkAndUpdateQuota(ctx.user.id);
+      if (quota.quotaUsed >= quota.maxQuota) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Run quota exceeded. You have used ${quota.quotaUsed}/${quota.maxQuota} runs. Your quota resets every 2 days.`,
+        });
+      }
+
+      const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
+      const { data: pull } = await octokit.rest.pulls.get({
+        owner: input.owner,
+        repo: input.repo,
+        pull_number: parseInt(input.prNumber),
+      });
+
+      await prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { quotaUsed: { increment: 1 } },
+      });
+
+      const run = await prisma.run.create({
+        data: {
+          id: crypto.randomUUID(),
+          userId: ctx.user.id,
+          mode: "pr_review",
+          repoOwner: input.owner,
+          repoName: `${input.owner}/${input.repo}`,
+          prNumber: parseInt(input.prNumber),
+          prTitle: pull.title,
+          status: "queued",
+        },
+      });
+
+      try {
+        const result = await startAgentJob({
+          owner: input.owner,
+          repo: input.repo,
+          prNumber: input.prNumber,
+          mode: "pr_review",
+          userId: ctx.user.id,
+          runId: run.id,
+        });
+
+        await prisma.run.update({
+          where: { id: run.id },
+          data: {
+            status: "running",
+            executionName: result.executionName,
+          },
+        });
+
+        return { runId: run.id, executionName: result.executionName };
+      } catch (err: any) {
+        await prisma.run.update({
+          where: { id: run.id },
+          data: {
+            status: "failed",
+            errorMessage: err.message || String(err),
+          },
+        });
+        throw err;
+      }
+    }),
+
   getRuns: protectedProcedure.query(async ({ ctx }) => {
     return prisma.run.findMany({
       where: { userId: ctx.user.id },

@@ -146,6 +146,7 @@ export const Route = createFileRoute("/api/webhook/$")({
             runId: string;
             status: "completed" | "failed";
             prLink?: string;
+            reviewJson?: unknown;
             errorMessage?: string;
           };
 
@@ -172,6 +173,7 @@ export const Route = createFileRoute("/api/webhook/$")({
             data: {
               status: body.status,
               prLink: body.prLink || null,
+              reviewJson: body.reviewJson === undefined ? undefined : body.reviewJson,
               errorMessage: body.errorMessage || null,
             },
           });
