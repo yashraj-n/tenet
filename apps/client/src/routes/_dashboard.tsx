@@ -11,6 +11,7 @@ import {
   Loader2,
   Mail,
   Bug,
+  Menu,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../integrations/trpc/react";
@@ -184,8 +185,42 @@ function DashboardLayout() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [reposPage, setReposPage] = useState(1);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const trpc = useTRPC();
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("tenet_sidebar_expanded");
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      } else if (saved === "false") {
+        setIsSidebarOpen(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      localStorage.setItem("tenet_sidebar_expanded", String(isSidebarOpen));
+    }
+  }, [isSidebarOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const { data: reposData, isLoading } = useQuery(
     trpc.getRepos.queryOptions({ page: reposPage, limit: 7 }),
@@ -266,8 +301,15 @@ function DashboardLayout() {
   return (
     <div className="relative min-h-screen flex flex-col bg-background font-sans noise-overlay antialiased">
       {/* Top Navbar */}
-      <nav className="fixed top-0 left-0 right-0 h-16 bg-card/60 backdrop-blur-xl border-b border-border z-30 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-6">
+      <nav className="fixed top-0 left-0 right-0 h-16 bg-card/60 backdrop-blur-xl border-b border-border z-30 px-4 md:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-6">
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            className="flex items-center justify-center p-1.5 rounded-lg hover:bg-foreground/5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
           <Link to="/" className="group flex items-center gap-2">
             <span className="font-display text-2xl tracking-tight text-foreground group-hover:text-[#eca8d6] transition-colors">
               TENET
@@ -301,8 +343,23 @@ function DashboardLayout() {
 
       {/* Main Body */}
       <div className="flex flex-1 pt-16 min-h-screen">
+        {/* Backdrop for Mobile overlay */}
+        {isSidebarOpen && (
+          <div
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 top-16 bg-black/30 backdrop-blur-xs z-30 transition-opacity duration-300 md:hidden"
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="fixed left-0 top-16 bottom-0 w-[300px] bg-card/40 border-r border-border z-20 flex flex-col">
+        <aside
+          className={cn(
+            "fixed left-0 top-16 bottom-0 bg-card/40 border-r border-border z-40 flex flex-col transition-all duration-300 ease-in-out",
+            isSidebarOpen
+              ? "w-[280px] md:w-[300px] translate-x-0"
+              : "-translate-x-full md:translate-x-0 md:w-0 md:border-r-0 md:pointer-events-none md:overflow-hidden",
+          )}
+        >
           {/* Sidebar Nav Links */}
           <div className="p-3 border-b border-border/60 space-y-1">
             <Link
@@ -442,7 +499,12 @@ function DashboardLayout() {
         </aside>
 
         {/* Content View */}
-        <main className="pl-[300px] flex-1 min-h-full flex flex-col bg-background">
+        <main
+          className={cn(
+            "flex-1 min-h-full flex flex-col bg-background transition-all duration-300 ease-in-out",
+            isSidebarOpen ? "md:pl-[300px]" : "md:pl-0",
+          )}
+        >
           <div key={location.pathname} className="content-enter flex-1 flex flex-col">
             <Outlet />
           </div>

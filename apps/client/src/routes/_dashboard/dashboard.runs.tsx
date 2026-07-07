@@ -53,7 +53,7 @@ function RunsPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-8 lg:p-12 max-w-5xl mx-auto w-full space-y-10 animate-fade-in">
+    <div className="flex-1 flex flex-col p-4 sm:p-8 lg:p-12 max-w-5xl mx-auto w-full space-y-10 animate-fade-in">
       {/* Header */}
       <div className="border-b border-border/20 pb-5">
         <h2 className="text-xl font-sans font-semibold tracking-tight text-foreground">
