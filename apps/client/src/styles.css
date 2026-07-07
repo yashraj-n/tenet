@@ -318,4 +318,50 @@
     opacity: 1;
     transition: opacity 0.2s ease;
   }
+
+  /* Staggered cascade — list items appear one by one */
+  .stagger-in {
+    animation: stagger-fade 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  @keyframes stagger-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stat card — hover lift with soft border glow */
+  .stat-card {
+    transition:
+      transform 0.2s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: oklch(0.25 0.015 260);
+    box-shadow: 0 8px 24px oklch(0 0 0 / 0.25);
+  }
+
+  /* Live glow — pulsing ring for running/active status dots */
+  .status-glow {
+    animation: glow-ring 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-ring {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    50% {
+      box-shadow: 0 0 8px 3px currentColor;
+    }
+  }
 }

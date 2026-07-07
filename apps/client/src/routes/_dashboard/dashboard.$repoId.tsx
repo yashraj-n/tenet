@@ -184,7 +184,7 @@ function RepoDetail() {
               placeholder="Search by title or number..."
               value={issueFilter}
               onChange={(e) => setIssueFilter(e.target.value)}
-              className="w-full bg-foreground/[0.01] border border-border/80 rounded-full pl-8 pr-4 py-1.5 text-xs text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-[#eca8d6]/50 transition-all font-mono"
+              className="w-full bg-foreground/[0.01] border border-border/80 rounded-lg pl-8 pr-4 py-1.5 text-xs text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-[#eca8d6]/50 transition-all font-mono"
             />
           </div>
         </div>
@@ -200,8 +200,14 @@ function RepoDetail() {
           ) : repoIssues.length > 0 ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-3">
-                {repoIssues.map((issue: any) => (
-                  <IssueRow key={issue.id} issue={issue} onBuildTrigger={handleBuildTrigger} />
+                {repoIssues.map((issue: any, i: number) => (
+                  <div
+                    key={issue.id}
+                    className="stagger-in"
+                    style={{ "--i": i } as React.CSSProperties}
+                  >
+                    <IssueRow issue={issue} onBuildTrigger={handleBuildTrigger} />
+                  </div>
                 ))}
               </div>
 
@@ -250,8 +256,14 @@ function RepoDetail() {
           ) : repoPulls.length > 0 ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-3">
-                {repoPulls.map((pr: any) => (
-                  <PRRow key={pr.id} pr={pr} onReviewTrigger={handleReviewTrigger} />
+                {repoPulls.map((pr: any, i: number) => (
+                  <div
+                    key={pr.id}
+                    className="stagger-in"
+                    style={{ "--i": i } as React.CSSProperties}
+                  >
+                    <PRRow pr={pr} onReviewTrigger={handleReviewTrigger} />
+                  </div>
                 ))}
               </div>
 

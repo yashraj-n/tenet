@@ -9,6 +9,7 @@ import {
   getInstalledRepos,
   getInstallationOctokitForRepo,
   getRepo,
+  getDashboardStats,
 } from "../../lib/github-app.server";
 
 async function checkAndUpdateQuota(userId: string) {
@@ -81,6 +82,10 @@ export const appRouter = createTRPCRouter({
 
   getRepo: protectedProcedure.input(z.object({ repoId: z.string() })).query(async ({ input }) => {
     return getRepo(input.repoId);
+  }),
+
+  getDashboardStats: protectedProcedure.query(async () => {
+    return getDashboardStats();
   }),
 
   getQuota: protectedProcedure.query(async ({ ctx }) => {

@@ -386,7 +386,15 @@ function DashboardLayout() {
                 <div className="h-10 rounded-lg skeleton-shimmer" />
               </div>
             ) : filteredRepos.length > 0 ? (
-              filteredRepos.map((repo: any) => <RepoItem key={repo.id} repo={repo} />)
+              filteredRepos.map((repo: any, i: number) => (
+                <div
+                  key={repo.id}
+                  className="stagger-in"
+                  style={{ "--i": i } as React.CSSProperties}
+                >
+                  <RepoItem repo={repo} />
+                </div>
+              ))
             ) : (
               <div className="text-center py-8 px-4">
                 <p className="text-xs text-muted-foreground font-mono">No repositories found</p>
