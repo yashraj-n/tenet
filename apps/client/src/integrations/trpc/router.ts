@@ -67,8 +67,17 @@ export const appRouter = createTRPCRouter({
     return "Hello World";
   }),
 
-  getRepos: protectedProcedure.query(async () => {
-    return getInstalledRepos();
+  getRepos: protectedProcedure
+    .input(z.object({ page: z.number().default(1), limit: z.number().default(10) }).optional())
+    .query(async ({ input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 10;
+      return getInstalledRepos(page, limit);
+    }),
+
+  getRepo: protectedProcedure.input(z.object({ repoId: z.string() })).query(async ({ input }) => {
+    const all = await getInstalledRepos(1, 1000);
+    return all.items.find((r) => r.id === input.repoId) || null;
   }),
 
   getQuota: protectedProcedure.query(async ({ ctx }) => {
@@ -76,18 +85,33 @@ export const appRouter = createTRPCRouter({
   }),
 
   getIssues: protectedProcedure
-    .input(z.object({ owner: z.string(), repo: z.string() }))
+    .input(
+      z.object({
+        owner: z.string(),
+        repo: z.string(),
+        page: z.number().default(1),
+        limit: z.number().default(10),
+      }),
+    )
     .query(async ({ input }) => {
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
+
+      const { data: searchResult } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${input.owner}/${input.repo} is:issue state:open`,
+        per_page: 1,
+      });
+
       const { data: issues } = await octokit.rest.issues.listForRepo({
         owner: input.owner,
         repo: input.repo,
         state: "open",
         sort: "created",
         direction: "desc",
+        page: input.page,
+        per_page: input.limit,
       });
 
-      return issues
+      const items = issues
         .filter((issue) => !issue.pull_request)
         .map((issue) => {
           const labels = (issue.labels || []).map((lbl) => {
@@ -115,21 +139,38 @@ export const appRouter = createTRPCRouter({
             body: issue.body ?? undefined,
           };
         });
+
+      return { items, total: searchResult.total_count };
     }),
 
   getPullRequests: protectedProcedure
-    .input(z.object({ owner: z.string(), repo: z.string() }))
+    .input(
+      z.object({
+        owner: z.string(),
+        repo: z.string(),
+        page: z.number().default(1),
+        limit: z.number().default(10),
+      }),
+    )
     .query(async ({ input }) => {
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
+
+      const { data: searchResult } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${input.owner}/${input.repo} is:pr state:open`,
+        per_page: 1,
+      });
+
       const { data: pulls } = await octokit.rest.pulls.list({
         owner: input.owner,
         repo: input.repo,
         state: "open",
         sort: "created",
         direction: "desc",
+        page: input.page,
+        per_page: input.limit,
       });
 
-      return pulls.map((pr) => {
+      const items = pulls.map((pr) => {
         const labels = (pr.labels || []).map((lbl) => {
           const name = typeof lbl === "string" ? lbl : lbl.name || "";
           const lowercaseName = name.toLowerCase();
@@ -158,6 +199,8 @@ export const appRouter = createTRPCRouter({
           url: pr.html_url,
         };
       });
+
+      return { items, total: searchResult.total_count };
     }),
 
   getAvailableModels: protectedProcedure.query(async () => {
@@ -415,46 +458,55 @@ export const appRouter = createTRPCRouter({
       }
     }),
 
-  getRuns: protectedProcedure.query(async ({ ctx }) => {
-    const runs = await prisma.run.findMany({
-      where: { userId: ctx.user.id },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
+  getRuns: protectedProcedure
+    .input(z.object({ page: z.number().default(1), limit: z.number().default(10) }).optional())
+    .query(async ({ ctx, input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 10;
 
-    const now = new Date();
-    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+      const [total, runs] = await Promise.all([
+        prisma.run.count({ where: { userId: ctx.user.id } }),
+        prisma.run.findMany({
+          where: { userId: ctx.user.id },
+          orderBy: { createdAt: "desc" },
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+      ]);
 
-    const timedOutRunIds: string[] = [];
-    const modifiedRuns = runs.map((run) => {
-      const isPending = run.status === "running" || run.status === "queued";
-      if (isPending && new Date(run.createdAt) < tenMinutesAgo) {
-        timedOutRunIds.push(run.id);
-        return {
-          ...run,
-          status: "failed",
-          errorMessage: "Job execution timed out (exceeded 10 minutes limit)",
-        };
-      }
-      return run;
-    });
+      const now = new Date();
+      const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
 
-    if (timedOutRunIds.length > 0) {
-      prisma.run
-        .updateMany({
-          where: { id: { in: timedOutRunIds } },
-          data: {
+      const timedOutRunIds: string[] = [];
+      const modifiedRuns = runs.map((run) => {
+        const isPending = run.status === "running" || run.status === "queued";
+        if (isPending && new Date(run.createdAt) < tenMinutesAgo) {
+          timedOutRunIds.push(run.id);
+          return {
+            ...run,
             status: "failed",
             errorMessage: "Job execution timed out (exceeded 10 minutes limit)",
-          },
-        })
-        .catch((err) => {
-          console.error("Failed to update timed out runs in background:", err);
-        });
-    }
+          };
+        }
+        return run;
+      });
 
-    return modifiedRuns;
-  }),
+      if (timedOutRunIds.length > 0) {
+        prisma.run
+          .updateMany({
+            where: { id: { in: timedOutRunIds } },
+            data: {
+              status: "failed",
+              errorMessage: "Job execution timed out (exceeded 10 minutes limit)",
+            },
+          })
+          .catch((err) => {
+            console.error("Failed to update timed out runs in background:", err);
+          });
+      }
+
+      return { items: modifiedRuns, total };
+    }),
 
   getTracingState: protectedProcedure.query(async ({ ctx }) => {
     const user = await prisma.user.findUnique({

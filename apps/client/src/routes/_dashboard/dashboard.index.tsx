@@ -12,7 +12,9 @@ function DashboardIndex() {
   const defaultQuota = { limit: 2, used: 0 };
   const [quota, setQuota] = useState(defaultQuota);
   const trpc = useTRPC();
-  const { data: repos = [] } = useQuery(trpc.getRepos.queryOptions());
+  const { data: reposData } = useQuery(trpc.getRepos.queryOptions({ page: 1, limit: 1000 }));
+  const repos = reposData?.items || [];
+  const totalRepos = reposData?.total || 0;
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -26,7 +28,6 @@ function DashboardIndex() {
     return () => window.removeEventListener("tenet_quota_update", handleUpdate);
   }, []);
 
-  const totalRepos = repos.length;
   const totalIssues = repos.reduce((sum: number, repo: any) => sum + repo.openIssuesCount, 0);
   const remainingQuota = quota.limit - quota.used;
 

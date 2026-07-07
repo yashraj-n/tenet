@@ -31,21 +31,32 @@ function RepoDetail() {
   const [isBuildOpen, setIsBuildOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [issueFilter, setIssueFilter] = useState("");
+  const [issuesPage, setIssuesPage] = useState(1);
+  const [pullsPage, setPullsPage] = useState(1);
 
   const trpc = useTRPC();
-  const { data: repos, isLoading: isLoadingRepos } = useQuery(trpc.getRepos.queryOptions());
-  const repo = repos?.find((r: any) => r.id === repoId);
+  const { data: repo, isLoading: isLoadingRepo } = useQuery({
+    ...trpc.getRepo.queryOptions({ repoId }),
+    enabled: !!repoId,
+  }) as any;
 
   const [owner, name] = repo ? repo.fullName.split("/") : ["", ""];
-  const { data: issues = [], isLoading: isLoadingIssues } = useQuery({
-    ...trpc.getIssues.queryOptions({ owner, repo: name }),
-    enabled: !!repo,
-  });
 
-  const { data: pulls = [], isLoading: isLoadingPulls } = useQuery({
-    ...trpc.getPullRequests.queryOptions({ owner, repo: name }),
+  const { data: issuesData, isLoading: isLoadingIssues } = useQuery({
+    ...trpc.getIssues.queryOptions({ owner, repo: name, page: issuesPage, limit: 10 }),
     enabled: !!repo,
-  });
+  }) as any;
+  const issues = issuesData?.items || [];
+  const totalIssues = issuesData?.total || 0;
+  const totalIssuesPages = Math.ceil(totalIssues / 10);
+
+  const { data: pullsData, isLoading: isLoadingPulls } = useQuery({
+    ...trpc.getPullRequests.queryOptions({ owner, repo: name, page: pullsPage, limit: 10 }),
+    enabled: !!repo,
+  }) as any;
+  const pulls = pullsData?.items || [];
+  const totalPulls = pullsData?.total || 0;
+  const totalPullsPages = Math.ceil(totalPulls / 10);
 
   const handleBuildTrigger = (issue: any) => {
     setSelectedIssue(issue);
@@ -57,7 +68,7 @@ function RepoDetail() {
     setIsReviewOpen(true);
   };
 
-  if (isLoadingRepos) {
+  if (isLoadingRepo) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 select-none">
         <div className="w-8 h-8 border-2 border-foreground/10 border-t-foreground/80 rounded-full animate-spin mb-3" />
@@ -153,14 +164,14 @@ function RepoDetail() {
               <AlertCircle className="w-3.5 h-3.5 text-blue-400" />
               <span>Issues</span>
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-foreground/5 text-[10px]">
-                {issues.length}
+                {totalIssues}
               </span>
             </TabsTrigger>
             <TabsTrigger value="pulls" className="gap-2 px-4 py-1.5 text-xs font-mono">
               <GitPullRequest className="w-3.5 h-3.5 text-emerald-400" />
               <span>Pull Requests</span>
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-foreground/5 text-[10px]">
-                {pulls.length}
+                {totalPulls}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -187,10 +198,35 @@ function RepoDetail() {
               </p>
             </div>
           ) : repoIssues.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {repoIssues.map((issue: any) => (
-                <IssueRow key={issue.id} issue={issue} onBuildTrigger={handleBuildTrigger} />
-              ))}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3">
+                {repoIssues.map((issue: any) => (
+                  <IssueRow key={issue.id} issue={issue} onBuildTrigger={handleBuildTrigger} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalIssuesPages > 1 && (
+                <div className="flex items-center justify-between border-t border-border/20 pt-4 mt-4 text-xs font-mono text-muted-foreground select-none">
+                  <button
+                    onClick={() => setIssuesPage((p) => Math.max(1, p - 1))}
+                    disabled={issuesPage === 1}
+                    className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    &lt; previous page
+                  </button>
+                  <span>
+                    page {issuesPage} / {totalIssuesPages}
+                  </span>
+                  <button
+                    onClick={() => setIssuesPage((p) => Math.min(totalIssuesPages, p + 1))}
+                    disabled={issuesPage === totalIssuesPages}
+                    className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    next page &gt;
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 border border-dashed border-border/60 rounded-2xl bg-foreground/[0.005] select-none text-center">
@@ -212,10 +248,35 @@ function RepoDetail() {
               </p>
             </div>
           ) : repoPulls.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {repoPulls.map((pr: any) => (
-                <PRRow key={pr.id} pr={pr} onReviewTrigger={handleReviewTrigger} />
-              ))}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3">
+                {repoPulls.map((pr: any) => (
+                  <PRRow key={pr.id} pr={pr} onReviewTrigger={handleReviewTrigger} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPullsPages > 1 && (
+                <div className="flex items-center justify-between border-t border-border/20 pt-4 mt-4 text-xs font-mono text-muted-foreground select-none">
+                  <button
+                    onClick={() => setPullsPage((p) => Math.max(1, p - 1))}
+                    disabled={pullsPage === 1}
+                    className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    &lt; previous page
+                  </button>
+                  <span>
+                    page {pullsPage} / {totalPullsPages}
+                  </span>
+                  <button
+                    onClick={() => setPullsPage((p) => Math.min(totalPullsPages, p + 1))}
+                    disabled={pullsPage === totalPullsPages}
+                    className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    next page &gt;
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 border border-dashed border-border/60 rounded-2xl bg-foreground/[0.005] select-none text-center">
