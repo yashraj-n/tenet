@@ -11,7 +11,7 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [devtools(), nitro({}), tailwindcss(), tanstackStart(), viteReact()],
   server: {
-    allowedHosts: ["strongly-related-tahr.ngrok-free.app"],
+    allowedHosts: ["crucial-decent-bluejay.ngrok-free.app"],
   },
 });
 
