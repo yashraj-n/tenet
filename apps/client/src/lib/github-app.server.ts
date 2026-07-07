@@ -106,3 +106,27 @@ export async function getRepo(repoId: string) {
 
   return null;
 }
+
+export async function getDashboardStats() {
+  const app = getApp();
+  const { data: installations } = await app.octokit.rest.apps.listInstallations();
+
+  let totalRepos = 0;
+  let totalIssues = 0;
+
+  for (const installation of installations) {
+    const octokit = await app.getInstallationOctokit(installation.id);
+    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
+      per_page: 100,
+    });
+    totalRepos += data.repositories.length;
+    for (const repo of data.repositories) {
+      totalIssues += repo.open_issues_count || 0;
+    }
+  }
+
+  return {
+    totalRepos,
+    totalIssues,
+  };
+}

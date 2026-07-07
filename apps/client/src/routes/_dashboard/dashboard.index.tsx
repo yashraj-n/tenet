@@ -4,6 +4,25 @@ import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../../integrations/trpc/react";
 import { useState, useEffect } from "react";
 
+function AnimatedCount({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    if (value === 0) {
+      setDisplay(0);
+      return;
+    }
+    const duration = 500;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      setDisplay(Math.round(t * t * value));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [value]);
+  return <>{display}</>;
+}
+
 export const Route = createFileRoute("/_dashboard/dashboard/")({
   component: DashboardIndex,
 });
@@ -12,9 +31,9 @@ function DashboardIndex() {
   const defaultQuota = { limit: 2, used: 0 };
   const [quota, setQuota] = useState(defaultQuota);
   const trpc = useTRPC();
-  const { data: reposData } = useQuery(trpc.getRepos.queryOptions({ page: 1, limit: 1000 }));
-  const repos = reposData?.items || [];
-  const totalRepos = reposData?.total || 0;
+  const { data: stats } = useQuery(trpc.getDashboardStats.queryOptions());
+  const totalRepos = stats?.totalRepos || 0;
+  const totalIssues = stats?.totalIssues || 0;
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -28,7 +47,6 @@ function DashboardIndex() {
     return () => window.removeEventListener("tenet_quota_update", handleUpdate);
   }, []);
 
-  const totalIssues = repos.reduce((sum: number, repo: any) => sum + repo.openIssuesCount, 0);
   const remainingQuota = quota.limit - quota.used;
 
   return (
@@ -60,28 +78,28 @@ function DashboardIndex() {
 
         {/* Grid Stats */}
         <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <div className="bg-card border border-border/80 rounded-xl p-4 text-center">
+          <div className="bg-card border border-border/80 rounded-xl p-4 text-center stat-card cursor-default">
             <FolderGit2 className="w-4 h-4 text-muted-foreground/60 mx-auto mb-1.5" />
             <span className="text-2xl font-display text-foreground block leading-none mb-1">
-              {totalRepos}
+              <AnimatedCount value={totalRepos} />
             </span>
             <span className="text-[10px] font-mono text-muted-foreground uppercase">Repos</span>
           </div>
 
-          <div className="bg-card border border-border/80 rounded-xl p-4 text-center">
+          <div className="bg-card border border-border/80 rounded-xl p-4 text-center stat-card cursor-default">
             <AlertCircle className="w-4 h-4 text-[#eca8d6] mx-auto mb-1.5" />
             <span className="text-2xl font-display text-foreground block leading-none mb-1">
-              {totalIssues}
+              <AnimatedCount value={totalIssues} />
             </span>
             <span className="text-[10px] font-mono text-muted-foreground uppercase">
               Open Issues
             </span>
           </div>
 
-          <div className="bg-card border border-border/80 rounded-xl p-4 text-center">
+          <div className="bg-card border border-border/80 rounded-xl p-4 text-center stat-card cursor-default">
             <Sparkles className="w-4 h-4 text-[#a78bfa] mx-auto mb-1.5" />
             <span className="text-2xl font-display text-foreground block leading-none mb-1">
-              {remainingQuota}
+              <AnimatedCount value={remainingQuota} />
             </span>
             <span className="text-[10px] font-mono text-muted-foreground uppercase">Runs Left</span>
           </div>

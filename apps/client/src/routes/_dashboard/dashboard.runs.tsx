@@ -73,7 +73,7 @@ function RunsPage() {
         </div>
       ) : runs.length > 0 ? (
         <div className="relative border-l border-border/40 ml-3 pl-8 space-y-10 py-2">
-          {runs.map((run) => {
+          {runs.map((run, runIndex) => {
             const isReview = run.mode === "pr_review";
             const itemNumber = isReview ? run.prNumber : run.issueNumber;
             const itemTitle = isReview ? run.prTitle : run.issueTitle;
@@ -89,15 +89,19 @@ function RunsPage() {
             const isQueued = run.status === "queued";
 
             return (
-              <div key={run.id} className="relative group flex flex-col gap-2">
+              <div
+                key={run.id}
+                className="relative group flex flex-col gap-2 stagger-in"
+                style={{ "--i": runIndex } as React.CSSProperties}
+              >
                 {/* Timeline axis dot */}
                 <div
                   className={cn(
                     "absolute -left-[38px] top-1 h-2.5 w-2.5 rounded-full border bg-background transition-colors duration-300",
                     isCompleted && "border-emerald-500 bg-emerald-500",
                     isFailed && "border-red-500 bg-red-500",
-                    isRunning && "border-primary bg-primary animate-pulse",
-                    isQueued && "border-amber-500 bg-amber-500 animate-pulse",
+                    isRunning && "border-primary bg-primary text-primary status-glow",
+                    isQueued && "border-amber-500 bg-amber-500 text-amber-500 status-glow",
                   )}
                 />
 
