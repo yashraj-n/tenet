@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Outlet, Link, useLocation, useRouter } from "@tanstack/react-router";
-import { Search, Plus, LogOut, ChevronRight, FolderGit2, Terminal, Settings } from "lucide-react";
+import {
+  Search,
+  Plus,
+  LogOut,
+  ChevronRight,
+  FolderGit2,
+  Terminal,
+  Settings,
+  Loader2,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../integrations/trpc/react";
 import { RepoItem } from "@/components/dashboard/repo-item";
@@ -15,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "#/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_dashboard")({
   component: DashboardLayout,
@@ -154,9 +164,22 @@ function DashboardLayout() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const trpc = useTRPC();
+  const router = useRouter();
   const { data: repos = [], isLoading } = useQuery(trpc.getRepos.queryOptions());
 
   const { data: quotaData } = useQuery(trpc.getQuota.queryOptions());
+  const { data: activeConfigs = [], isLoading: isLoadingConfigs } = useQuery(
+    trpc.getProviderConfigs.queryOptions(),
+  );
+
+  const hasAnyConfigured = activeConfigs.some((c: any) => c.hasKey);
+
+  useEffect(() => {
+    if (!isLoadingConfigs && !hasAnyConfigured && location.pathname !== "/dashboard/settings") {
+      router.navigate({ to: "/dashboard/settings" });
+      toast.error("Please configure an LLM provider key to get started.");
+    }
+  }, [hasAnyConfigured, isLoadingConfigs, location.pathname, router]);
 
   useEffect(() => {
     if (quotaData) {
@@ -252,22 +275,26 @@ function DashboardLayout() {
           <div className="p-3 border-b border-border/60 space-y-1">
             <Link
               to="/dashboard"
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200 ${
+              className={cn(
+                "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200",
                 isRepositoriesActive
                   ? "bg-foreground/[0.04] text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]"
-              }`}
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]",
+                !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
+              )}
             >
               <FolderGit2 className="w-4 h-4" />
               <span>Repositories</span>
             </Link>
             <Link
               to="/dashboard/runs"
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200 ${
+              className={cn(
+                "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200",
                 isRunsActive
                   ? "bg-foreground/[0.04] text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]"
-              }`}
+                  : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]",
+                !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
+              )}
             >
               <Terminal className="w-4 h-4" />
               <span>Runs History</span>
@@ -286,7 +313,12 @@ function DashboardLayout() {
           </div>
 
           {/* Search container */}
-          <div className="p-4 border-b border-border/60">
+          <div
+            className={cn(
+              "p-4 border-b border-border/60",
+              !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
+            )}
+          >
             <div className="relative">
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground/60" />
               <input
@@ -300,11 +332,19 @@ function DashboardLayout() {
           </div>
 
           {/* Repos list */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-none">
+          <div
+            className={cn(
+              "flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-none",
+              !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
+            )}
+          >
             <div className="px-3 mb-2 flex items-center justify-between">
               <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
-                Installed Repositories ({filteredRepos.length})
+                Installed Repositories {isLoading ? "" : `(${filteredRepos.length})`}
               </span>
+              {isLoading && (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground/60" />
+              )}
             </div>
 
             {isLoading ? (
