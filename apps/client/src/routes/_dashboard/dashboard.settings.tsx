@@ -1,19 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../../integrations/trpc/react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
@@ -24,7 +15,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Key, Cpu, ChevronsUpDown, Check } from "lucide-react";
+import { Eye, EyeOff, ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -57,7 +48,8 @@ const PROVIDERS: ProviderData[] = [
 function ModelSettingsPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [selectedProvider, setSelectedProvider] = useState<ProviderData | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(PROVIDERS[0].id);
+  const [hasSetDefaultTab, setHasSetDefaultTab] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>("");
@@ -67,15 +59,19 @@ function ModelSettingsPage() {
 
   const { data: availableModels = [] } = useQuery(trpc.getAvailableModels.queryOptions()) as any;
   const { data: activeConfigs = [] } = useQuery(trpc.getProviderConfigs.queryOptions()) as any;
+  const { data: tracingDisabled = false, isLoading: isLoadingTracing } = useQuery(
+    trpc.getTracingState.queryOptions(),
+  ) as { data: boolean; isLoading: boolean };
+
+  const selectedProvider = PROVIDERS.find((p) => p.id === activeTab) || PROVIDERS[0];
 
   const saveConfig = useMutation(
     trpc.saveProviderConfig.mutationOptions({
       onSuccess: () => {
-        toast.success(`Successfully configured ${selectedProvider?.name}`);
+        toast.success(`Successfully configured ${selectedProvider.name}`);
         queryClient.invalidateQueries(trpc.getProviderConfigs.queryFilter());
-        setSelectedProvider(null);
         setApiKey("");
-        setSelectedModel("");
+        setShowKey(false);
       },
       onError: (err) => {
         toast.error(err.message || "Failed to save configuration");
@@ -83,26 +79,52 @@ function ModelSettingsPage() {
     }),
   );
 
+  const setTracingState = useMutation(
+    trpc.setTracingState.mutationOptions({
+      onSuccess: () => {
+        toast.success("Tracing preference updated");
+        queryClient.invalidateQueries(trpc.getTracingState.queryFilter());
+      },
+      onError: (err) => {
+        toast.error(err.message || "Failed to update tracing preference");
+      },
+    }),
+  );
+
+  useEffect(() => {
+    if (activeConfigs.length > 0 && !hasSetDefaultTab) {
+      const firstActive = PROVIDERS.find((p) => {
+        const conf = activeConfigs.find((c: any) => c.provider === p.slug);
+        return conf?.hasKey;
+      });
+      if (firstActive) {
+        setActiveTab(firstActive.id);
+      }
+      setHasSetDefaultTab(true);
+    }
+  }, [activeConfigs, hasSetDefaultTab]);
+
   const providerModels = (availableModels as any[]).filter(
     (m) =>
-      m.provider === selectedProvider?.slug ||
-      (selectedProvider?.slug === "azure" && m.provider === "openai") ||
-      (selectedProvider?.slug === "openrouter" &&
+      m.provider === selectedProvider.slug ||
+      (selectedProvider.slug === "azure" && m.provider === "openai") ||
+      (selectedProvider.slug === "openrouter" &&
         ["google", "openai", "anthropic", "cohere", "mistral"].includes(m.provider)),
   );
 
-  const handleOpenConfigure = (provider: ProviderData) => {
-    setSelectedProvider(provider);
-    const existing = (activeConfigs as any[]).find((c: any) => c.provider === provider.slug);
+  useEffect(() => {
+    const existing = (activeConfigs as any[]).find(
+      (c: any) => c.provider === selectedProvider.slug,
+    );
     const modelId = existing?.modelName || "";
     setApiKey("");
     setShowKey(false);
 
     const modelsForThisProvider = (availableModels as any[]).filter(
       (m) =>
-        m.provider === provider.slug ||
-        (provider.slug === "azure" && m.provider === "openai") ||
-        (provider.slug === "openrouter" &&
+        m.provider === selectedProvider.slug ||
+        (selectedProvider.slug === "azure" && m.provider === "openai") ||
+        (selectedProvider.slug === "openrouter" &&
           ["google", "openai", "anthropic", "cohere", "mistral"].includes(m.provider)),
     );
     const isModelInList = modelsForThisProvider.some((m) => m.id === modelId);
@@ -116,10 +138,9 @@ function ModelSettingsPage() {
       setCustomModelName("");
       setSelectedModel(modelId);
     }
-  };
+  }, [activeTab, activeConfigs, availableModels]);
 
   const handleSave = () => {
-    if (!selectedProvider) return;
     if (!apiKey.trim()) {
       toast.error("API Key is required");
       return;
@@ -132,248 +153,227 @@ function ModelSettingsPage() {
     });
   };
 
+  const sortedProviders = [
+    selectedProvider,
+    ...PROVIDERS.filter((p) => p.id !== selectedProvider.id),
+  ];
+
   return (
-    <div className="flex-1 flex flex-col p-8 lg:p-12 max-w-5xl mx-auto w-full space-y-8 animate-fade-in">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-display tracking-tight text-foreground">Model Settings</h1>
-        <p className="text-muted-foreground text-sm max-w-2xl font-sans">
-          Configure API credentials and select preferred models for each provider. Keys are
-          encrypted using AES-256 and stored securely.
-        </p>
-      </div>
+    <div className="flex-1 flex flex-col lg:flex-row gap-8 p-8 lg:p-12 max-w-5xl mx-auto w-full animate-fade-in">
+      {/* Left panel: Providers List */}
+      <div className="w-full lg:w-2/5 flex flex-col gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl font-sans font-semibold tracking-tight text-foreground">
+            Settings
+          </h1>
+          <p className="text-muted-foreground text-xs font-sans">
+            Configure integration credentials and default models.
+          </p>
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {PROVIDERS.map((provider) => {
-          const config = (activeConfigs as any[]).find((c: any) => c.provider === provider.slug);
-          const logoUrl = `https://models.dev/logos/${provider.id}.svg`;
-
-          return (
-            <Card
-              key={provider.id}
-              className="bg-card/40 border-border/80 backdrop-blur-md relative overflow-hidden group hover:border-[#eca8d6]/30 transition-all duration-300"
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-16 w-16 rounded-xl bg-foreground/[0.03] border border-border/40 flex items-center justify-center p-2">
-                    <img
-                      src={logoUrl}
-                      alt={provider.name}
-                      className="max-h-full max-w-full object-contain invert"
-                    />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base font-sans font-medium text-foreground">
-                      {provider.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground font-mono">
-                      {config?.modelName || "No default model selected"}
-                    </CardDescription>
-                  </div>
-                </div>
-
-                <Badge
-                  className={
-                    config?.hasKey
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/25"
-                      : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20 hover:bg-zinc-500/25"
-                  }
-                  variant="outline"
-                >
-                  {config?.hasKey ? "Configured" : "Not Configured"}
-                </Badge>
-              </CardHeader>
-
-              <CardContent className="pt-2 flex items-center justify-between border-t border-border/20 mt-2 bg-foreground/[0.01]">
-                <span className="text-[11px] font-mono text-muted-foreground">
-                  {config?.updatedAt
-                    ? `Updated: ${new Date(config.updatedAt).toLocaleDateString()}`
-                    : "Not active"}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleOpenConfigure(provider)}
-                  className="h-8 border border-border/60 hover:bg-[#eca8d6]/10 hover:text-[#eca8d6] font-mono text-xs"
-                >
-                  Configure
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Sheet open={selectedProvider !== null} onOpenChange={() => setSelectedProvider(null)}>
-        {selectedProvider && (
-          <SheetContent className="bg-card/95 border-l border-border backdrop-blur-xl w-full sm:max-w-md flex flex-col">
-            <SheetHeader className="space-y-3 pb-6 border-b border-border/60">
-              <div className="flex items-center gap-3">
-                <div className="h-16 w-16 rounded-xl bg-foreground/[0.03] border border-border/40 flex items-center justify-center p-2">
-                  <img
-                    src={`https://models.dev/logos/${selectedProvider.id}.svg`}
-                    alt={selectedProvider.name}
-                    className="max-h-full max-w-full object-contain invert"
-                  />
-                </div>
-                <SheetTitle className="text-xl font-display text-foreground">
-                  Configure {selectedProvider.name}
-                </SheetTitle>
-              </div>
-              <SheetDescription className="text-xs text-muted-foreground font-sans">
-                Provide your API key and default model. The key will be securely encrypted with
-                AES-256 before saving.
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="flex-1 py-8 space-y-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="apiKey"
-                  className="text-xs font-mono text-muted-foreground uppercase flex items-center gap-1.5"
-                >
-                  <Key className="w-3.5 h-3.5 text-[#eca8d6]" />
-                  <span>API Key</span>
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="apiKey"
-                    type={showKey ? "text" : "password"}
-                    placeholder="Enter your key here"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="bg-background border-border pr-10 focus-visible:ring-[#eca8d6]/30 font-mono text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-2.5 text-muted-foreground/60 hover:text-foreground"
-                  >
-                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                <p className="text-[10px] text-muted-foreground font-sans">
-                  Get your key from the{" "}
-                  <a
-                    href={selectedProvider.docUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#eca8d6] hover:underline"
-                  >
-                    {selectedProvider.name} Dashboard
-                  </a>
-                  .
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="modelSelect"
-                    className="text-xs font-mono text-muted-foreground uppercase flex items-center gap-1.5"
-                  >
-                    <Cpu className="w-3.5 h-3.5 text-[#eca8d6]" />
-                    <span>Default Model</span>
-                  </Label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseCustomModel(!useCustomModel);
-                      if (!useCustomModel) {
-                        setCustomModelName(selectedModel);
-                        setSelectedModel("");
-                      } else {
-                        setSelectedModel(customModelName);
-                        setCustomModelName("");
-                      }
-                    }}
-                    className="text-[10px] font-mono text-[#eca8d6] hover:underline cursor-pointer focus:outline-none"
-                  >
-                    {useCustomModel ? "Select from list" : "Enter custom model ID"}
-                  </button>
-                </div>
-
-                {useCustomModel ? (
-                  <Input
-                    placeholder="e.g. gemini-2.5-flash-exp"
-                    value={customModelName}
-                    onChange={(e) => setCustomModelName(e.target.value)}
-                    className="bg-background border-border focus-visible:ring-[#eca8d6]/30 font-mono text-sm h-10 px-3"
-                  />
-                ) : (
-                  <Popover open={openModelPopover} onOpenChange={setOpenModelPopover}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={openModelPopover}
-                        className="w-full justify-between bg-background border-border hover:bg-background/80 text-foreground font-mono text-sm h-10 px-3"
-                      >
-                        <span className="truncate">
-                          {selectedModel
-                            ? (providerModels as any[]).find((model) => model.id === selectedModel)
-                                ?.name || selectedModel
-                            : "Select default model"}
-                        </span>
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-card border-border z-[100]">
-                      <Command className="bg-transparent">
-                        <CommandInput
-                          placeholder="Search models..."
-                          className="font-mono text-xs border-none focus:ring-0 focus:outline-none"
-                        />
-                        <CommandList className="max-h-[200px] overflow-y-auto">
-                          <CommandEmpty className="py-2 text-center text-xs text-muted-foreground font-mono">
-                            No model found.
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {(providerModels as any[]).map((model) => (
-                              <CommandItem
-                                key={model.id}
-                                value={model.id}
-                                keywords={[model.name, model.id]}
-                                onSelect={(currentValue) => {
-                                  setSelectedModel(currentValue);
-                                  setOpenModelPopover(false);
-                                }}
-                                className="font-mono text-xs cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-foreground/[0.04]"
-                              >
-                                <span className="truncate">{model.name}</span>
-                                <Check
-                                  className={cn(
-                                    "h-3.5 w-3.5 text-[#eca8d6]",
-                                    selectedModel === model.id ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+        <div className="flex flex-col gap-1 border border-border/40 rounded-lg p-1.5 bg-card/10">
+          {sortedProviders.map((provider) => {
+            const providerConfig = (activeConfigs as any[]).find(
+              (c: any) => c.provider === provider.slug,
+            );
+            return (
+              <button
+                key={provider.id}
+                onClick={() => setActiveTab(provider.id)}
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-colors cursor-pointer text-xs font-sans",
+                  activeTab === provider.id
+                    ? "bg-foreground/5 text-foreground font-medium border border-border/30"
+                    : "text-muted-foreground hover:bg-foreground/[0.02] hover:text-foreground border border-transparent",
                 )}
-                <p className="text-[10px] text-muted-foreground font-sans">
-                  {useCustomModel
-                    ? "Enter the precise identifier of your custom model."
-                    : "Select the model configured to execute tasks for this provider."}
-                </p>
-              </div>
+              >
+                <span>{provider.name}</span>
+                <div className="flex items-center gap-2">
+                  {providerConfig?.modelName && (
+                    <span className="text-[10px] font-mono opacity-65 truncate max-w-[80px]">
+                      {providerConfig.modelName}
+                    </span>
+                  )}
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full shrink-0",
+                      providerConfig?.hasKey ? "bg-emerald-500" : "bg-zinc-500/80",
+                    )}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Global preferences */}
+        <div className="flex flex-col gap-3 border border-border/40 rounded-lg p-4 bg-card/10">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5 max-w-[80%]">
+              <span className="text-xs font-sans font-semibold text-foreground">
+                Disable Tracing
+              </span>
+              <p className="text-[10px] text-muted-foreground leading-normal">
+                Tracing helps developers debug prompt flows, analyze latency, and diagnose container
+                issues.
+              </p>
+            </div>
+            <Switch
+              checked={tracingDisabled}
+              onCheckedChange={(checked) => setTracingState.mutate(checked)}
+              disabled={isLoadingTracing || setTracingState.isPending}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Right panel: Active Integration Console */}
+      <div className="flex-1 border border-border/50 bg-card/20 rounded-xl p-6 flex flex-col gap-5">
+        <div className="flex items-baseline justify-between border-b border-border/20 pb-3">
+          <h2 className="text-sm font-sans font-semibold text-foreground">
+            {selectedProvider.name}
+          </h2>
+          <a
+            href={selectedProvider.docUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] font-sans text-primary hover:underline"
+          >
+            API Dashboard
+          </a>
+        </div>
+
+        <div className="flex-1 space-y-4">
+          {/* API Key Form Group */}
+          <div className="space-y-1.5">
+            <Label htmlFor="apiKey" className="text-xs font-sans text-muted-foreground">
+              API Key
+            </Label>
+            <div className="relative">
+              <Input
+                id="apiKey"
+                type={showKey ? "text" : "password"}
+                placeholder="Credential token"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="bg-background border-border pr-10 focus-visible:ring-primary/20 font-mono text-xs h-9"
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                className="absolute right-2.5 top-2.5 text-muted-foreground/60 hover:text-foreground cursor-pointer"
+              >
+                {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Default Model Selector Form Group */}
+          <div className="space-y-2">
+            <Label htmlFor="modelSelect" className="text-xs font-sans text-muted-foreground">
+              Default Model
+            </Label>
+
+            {/* Custom Model Toggle Switch */}
+            <div className="flex items-center justify-between border border-border/40 rounded-lg p-2.5 bg-foreground/[0.005]">
+              <span className="text-xs font-sans font-medium text-foreground">Custom Model ID</span>
+              <Switch
+                checked={useCustomModel}
+                onCheckedChange={(checked) => {
+                  setUseCustomModel(checked);
+                  if (checked) {
+                    setCustomModelName(selectedModel);
+                    setSelectedModel("");
+                  } else {
+                    setSelectedModel(customModelName);
+                    setCustomModelName("");
+                  }
+                }}
+              />
             </div>
 
-            <SheetFooter className="pt-6 border-t border-border/60">
-              <Button
-                onClick={handleSave}
-                disabled={saveConfig.isPending}
-                className="w-full bg-[#eca8d6] hover:bg-[#eca8d6]/85 text-black font-semibold font-mono"
-              >
-                {saveConfig.isPending ? "Saving..." : "Save Configuration"}
-              </Button>
-            </SheetFooter>
-          </SheetContent>
-        )}
-      </Sheet>
+            {useCustomModel ? (
+              <Input
+                placeholder="Model identifier (e.g. gemini-2.5-flash)"
+                value={customModelName}
+                onChange={(e) => setCustomModelName(e.target.value)}
+                className="bg-background border-border focus-visible:ring-primary/20 font-mono text-xs h-9 px-3"
+              />
+            ) : (
+              <Popover open={openModelPopover} onOpenChange={setOpenModelPopover}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openModelPopover}
+                    className="w-full justify-between bg-background border-border hover:bg-background/80 text-foreground font-mono text-xs h-9 px-3 cursor-pointer"
+                  >
+                    <span className="truncate">
+                      {selectedModel
+                        ? (providerModels as any[]).find((model) => model.id === selectedModel)
+                            ?.name || selectedModel
+                        : "Select default model"}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-card border-border z-[100] shadow-md">
+                  <Command className="bg-transparent">
+                    <CommandInput
+                      placeholder="Search models..."
+                      className="font-mono text-xs border-none focus:ring-0 focus:outline-none h-8"
+                    />
+                    <CommandList className="max-h-[200px] overflow-y-auto">
+                      <CommandEmpty className="py-2 text-center text-xs text-muted-foreground font-sans">
+                        No model found.
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {(providerModels as any[]).map((model) => (
+                          <CommandItem
+                            key={model.id}
+                            value={model.id}
+                            keywords={[model.name, model.id]}
+                            onSelect={(currentValue) => {
+                              setSelectedModel(currentValue);
+                              setOpenModelPopover(false);
+                            }}
+                            className="font-mono text-xs cursor-pointer flex flex-col items-start gap-0.5 py-2 px-3 hover:bg-foreground/[0.02] transition-colors"
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-sans font-medium text-foreground text-xs truncate">
+                                {model.name}
+                              </span>
+                              <Check
+                                className={cn(
+                                  "h-3.5 w-3.5 text-primary",
+                                  selectedModel === model.id ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground truncate">
+                              {model.id}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-2 border-t border-border/20">
+          <Button
+            onClick={handleSave}
+            disabled={saveConfig.isPending}
+            className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium font-sans h-9 transition-colors cursor-pointer text-xs"
+          >
+            {saveConfig.isPending ? "Saving..." : "Save Configuration"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

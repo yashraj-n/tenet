@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "#/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard")({
   component: DashboardLayout,
@@ -180,6 +181,33 @@ function DashboardLayout() {
   const isRepositoriesActive =
     location.pathname.startsWith("/dashboard") && !isRunsActive && !isSettingsActive;
 
+  const getBreadcrumbs = () => {
+    const parts = [{ label: "dashboard", href: "/dashboard" }];
+
+    if (isRunsActive) {
+      parts.push({ label: "runs", href: "/dashboard/runs" });
+    } else if (isSettingsActive) {
+      parts.push({ label: "settings", href: "/dashboard/settings" });
+    } else if (isRepositoriesActive) {
+      const match = location.pathname.match(/^\/dashboard\/([^/]+)/);
+      const repoId = match ? match[1] : null;
+      if (repoId) {
+        parts.push({ label: "repos", href: "/dashboard" });
+        const activeRepo = repos.find((r: any) => r.id === repoId);
+        parts.push({
+          label: activeRepo ? activeRepo.name : repoId,
+          href: `/dashboard/${repoId}`,
+        });
+      } else {
+        parts.push({ label: "repos", href: "/dashboard" });
+      }
+    }
+
+    return parts;
+  };
+
+  const breadcrumbs = getBreadcrumbs();
+
   return (
     <div className="relative min-h-screen flex flex-col bg-background font-sans noise-overlay antialiased">
       {/* Top Navbar */}
@@ -191,10 +219,23 @@ function DashboardLayout() {
             </span>
           </Link>
           <div className="h-4 w-px bg-border hidden sm:block" />
-          <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground font-mono">
-            <span>dashboard</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-foreground">repositories</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+            {breadcrumbs.map((part, index) => (
+              <span key={index} className="flex items-center gap-1.5">
+                {index > 0 && <ChevronRight className="w-3 h-3 text-muted-foreground/35" />}
+                <Link
+                  to={part.href}
+                  className={cn(
+                    "transition-colors hover:text-foreground cursor-pointer",
+                    index === breadcrumbs.length - 1
+                      ? "text-foreground font-medium"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {part.label}
+                </Link>
+              </span>
+            ))}
           </div>
         </div>
 

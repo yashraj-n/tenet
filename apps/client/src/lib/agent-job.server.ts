@@ -36,6 +36,11 @@ export async function startAgentJob(opts: {
   const apiKey = decrypt(config.encryptedKey, config.iv, config.salt);
   const mode = opts.mode ?? "issue_build";
 
+  const user = await prisma.user.findUnique({
+    where: { id: opts.userId },
+  });
+  const tracingDisabled = user?.tracingDisabled ?? false;
+
   const [operation] = await gcpJobsClient.runJob({
     name: `projects/${env.GOOGLE_PROJECT_ID}/locations/${env.GOOGLE_PROJECT_REGION}/jobs/${env.GOOGLE_CLOUD_RUN_WORKER_NAME}`,
     overrides: {
@@ -58,6 +63,7 @@ export async function startAgentJob(opts: {
             { name: "RUN_ID", value: opts.runId },
             { name: "CALLBACK_URL", value: `${env.BETTER_AUTH_URL}/api/webhook/run-complete` },
             { name: "SECRET_WEBHOOK_KEY", value: env.SECRET_WEBHOOK_KEY },
+            { name: "LANGCHAIN_TRACING_V2", value: tracingDisabled ? "false" : "true" },
           ],
         },
       ],
