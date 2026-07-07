@@ -53,8 +53,8 @@ function DashboardIndex() {
             Welcome to Tenet
           </h2>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            Tenet acts as an autonomous developer, resolving issues in secure sandbox environments.
-            Select a repository to begin.
+            Tenet automatically resolves bugs and builds features in minutes. Stop wasting time
+            debugging issues manually. Select a repository to get started.
           </p>
         </div>
 
