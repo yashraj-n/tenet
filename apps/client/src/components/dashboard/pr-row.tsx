@@ -8,8 +8,8 @@ interface PRRowProps {
 
 export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
   return (
-    <div className="flex items-center justify-between gap-6 p-4.5 px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300 group">
-      <div className="flex items-start gap-4.5 min-w-0 flex-1">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 md:p-4.5 md:px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300 group">
+      <div className="flex items-start gap-4.5 min-w-0 flex-1 w-full">
         {/* Status Icon */}
         <div
           className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border transition-colors duration-300 ${
@@ -42,14 +42,14 @@ export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
 
           <div className="flex items-center flex-wrap gap-x-3 gap-y-1.5">
             {/* Branch visualization badge */}
-            <div className="flex items-center gap-1 bg-foreground/[0.02] border border-border/40 rounded px-2 py-0.5 text-[11px] font-mono text-muted-foreground">
+            <div className="flex items-center gap-1 bg-foreground/[0.02] border border-border/40 rounded px-2 py-0.5 text-[11px] font-mono text-muted-foreground flex-wrap max-w-full">
               <GitBranch className="w-3 h-3 text-blue-400" />
-              <span className="max-w-[100px] truncate" title={pr.targetBranch}>
+              <span className="max-w-[80px] sm:max-w-[100px] truncate" title={pr.targetBranch}>
                 {pr.targetBranch}
               </span>
               <span className="text-muted-foreground/40">←</span>
               <span
-                className="max-w-[120px] truncate font-medium text-foreground/80"
+                className="max-w-[90px] sm:max-w-[120px] truncate font-medium text-foreground/80"
                 title={pr.sourceBranch}
               >
                 {pr.sourceBranch}
@@ -73,11 +73,11 @@ export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
         <button
           type="button"
           onClick={() => onReviewTrigger?.(pr)}
-          className="flex items-center justify-center bg-[#eca8d6]/5 hover:bg-[#eca8d6]/15 text-[#eca8d6] border border-[#eca8d6]/20 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
+          className="flex-1 sm:flex-initial flex items-center justify-center bg-[#eca8d6]/5 hover:bg-[#eca8d6]/15 text-[#eca8d6] border border-[#eca8d6]/20 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
         >
           <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">
             Code Review
@@ -89,7 +89,7 @@ export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
           href={pr.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
+          className="flex-1 sm:flex-initial flex items-center justify-center bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
         >
           <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors duration-200">
             View PR

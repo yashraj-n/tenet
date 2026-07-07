@@ -11,8 +11,8 @@ export function IssueRow({ issue, onBuildTrigger }: IssueRowProps) {
   const githubLink = `https://github.com/${issue.repoId}/issues/${issue.number}`;
 
   return (
-    <div className="flex items-center justify-between gap-6 p-4.5 px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300 group">
-      <div className="flex items-start gap-4.5 min-w-0 flex-1">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-4.5 md:px-6 rounded-lg border border-border/40 bg-foreground/[0.005] hover:bg-foreground/[0.015] hover:border-border/80 transition-all duration-300 group">
+      <div className="flex items-start gap-4.5 min-w-0 flex-1 w-full">
         {/* Status Icon */}
         <div className="mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border border-blue-500/20 bg-blue-500/10 text-blue-400 transition-colors duration-300">
           <AlertCircle className="w-4 h-4" />
@@ -49,7 +49,7 @@ export function IssueRow({ issue, onBuildTrigger }: IssueRowProps) {
 
       <Button
         size="sm"
-        className="bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 px-4.5 h-8.5 gap-1.5 shrink-0 transition-colors duration-200 cursor-pointer group"
+        className="w-full md:w-auto bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 px-4.5 h-8.5 gap-1.5 shrink-0 transition-colors duration-200 cursor-pointer group justify-center"
         onClick={() => onBuildTrigger(issue)}
       >
         <Play className="w-2.5 h-2.5 fill-[#eca8d6] text-[#eca8d6] transition-transform duration-200" />
