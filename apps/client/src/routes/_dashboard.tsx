@@ -163,9 +163,24 @@ function UserNav() {
 function DashboardLayout() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [reposPage, setReposPage] = useState(1);
   const trpc = useTRPC();
   const router = useRouter();
-  const { data: repos = [], isLoading } = useQuery(trpc.getRepos.queryOptions());
+
+  const { data: reposData, isLoading } = useQuery(
+    trpc.getRepos.queryOptions({ page: reposPage, limit: 7 }),
+  );
+  const repos = reposData?.items || [];
+  const totalRepos = reposData?.total || 0;
+  const totalReposPages = Math.ceil(totalRepos / 7);
+
+  const match = location.pathname.match(/^\/dashboard\/([^/]+)/);
+  const repoId = match && match[1] !== "runs" && match[1] !== "settings" ? match[1] : null;
+
+  const { data: activeRepo } = useQuery({
+    ...trpc.getRepo.queryOptions({ repoId: repoId || "" }),
+    enabled: !!repoId,
+  }) as any;
 
   const { data: quotaData } = useQuery(trpc.getQuota.queryOptions());
   const { data: activeConfigs = [], isLoading: isLoadingConfigs } = useQuery(
@@ -212,11 +227,8 @@ function DashboardLayout() {
     } else if (isSettingsActive) {
       parts.push({ label: "settings", href: "/dashboard/settings" });
     } else if (isRepositoriesActive) {
-      const match = location.pathname.match(/^\/dashboard\/([^/]+)/);
-      const repoId = match ? match[1] : null;
       if (repoId) {
         parts.push({ label: "repos", href: "/dashboard" });
-        const activeRepo = repos.find((r: any) => r.id === repoId);
         parts.push({
           label: activeRepo ? activeRepo.name : repoId,
           href: `/dashboard/${repoId}`,
@@ -358,6 +370,29 @@ function DashboardLayout() {
             ) : (
               <div className="text-center py-8 px-4">
                 <p className="text-xs text-muted-foreground font-mono">No repositories found</p>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalReposPages > 1 && (
+              <div className="px-3 py-2 flex items-center justify-between border-t border-border/20 mt-3 text-[10px] font-mono text-muted-foreground select-none">
+                <button
+                  onClick={() => setReposPage((p) => Math.max(1, p - 1))}
+                  disabled={reposPage === 1}
+                  className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  &lt; prev
+                </button>
+                <span>
+                  page {reposPage} / {totalReposPages}
+                </span>
+                <button
+                  onClick={() => setReposPage((p) => Math.min(totalReposPages, p + 1))}
+                  disabled={reposPage === totalReposPages}
+                  className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  next &gt;
+                </button>
               </div>
             )}
           </div>

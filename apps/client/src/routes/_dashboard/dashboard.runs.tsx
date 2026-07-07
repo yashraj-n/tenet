@@ -12,8 +12,14 @@ export const Route = createFileRoute("/_dashboard/dashboard/runs")({
 });
 
 function RunsPage() {
+  const [runsPage, setRunsPage] = useState(1);
   const trpc = useTRPC();
-  const { data: runs = [], isLoading } = useQuery(trpc.getRuns.queryOptions());
+  const { data: runsData, isLoading } = useQuery(
+    trpc.getRuns.queryOptions({ page: runsPage, limit: 10 }),
+  );
+  const runs = runsData?.items || [];
+  const totalRuns = runsData?.total || 0;
+  const totalRunsPages = Math.ceil(totalRuns / 10);
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
 
   const getStatusLabel = (status: string) => {
@@ -264,6 +270,29 @@ function RunsPage() {
               </div>
             );
           })}
+
+          {/* Pagination Controls */}
+          {totalRunsPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border/20 pt-4 mt-6 text-xs font-mono text-muted-foreground select-none">
+              <button
+                onClick={() => setRunsPage((p) => Math.max(1, p - 1))}
+                disabled={runsPage === 1}
+                className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+              >
+                &lt; previous page
+              </button>
+              <span>
+                page {runsPage} / {totalRunsPages}
+              </span>
+              <button
+                onClick={() => setRunsPage((p) => Math.min(totalRunsPages, p + 1))}
+                disabled={runsPage === totalRunsPages}
+                className="hover:text-foreground disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+              >
+                next page &gt;
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border/40 rounded-2xl bg-card/10 select-none text-center max-w-md mx-auto">

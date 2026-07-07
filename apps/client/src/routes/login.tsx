@@ -51,15 +51,21 @@ function LoginComponent() {
             Continue with GitHub
           </Button>
 
-          <p className="text-[11px] text-muted-foreground/60 text-center mt-6 leading-relaxed">
+          <p className="text-[11px] text-muted-foreground/60 text-center mt-6 leading-relaxed font-sans">
             By continuing, you agree to our{" "}
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              to="/terms"
+              className="text-muted-foreground hover:text-foreground hover:underline transition-colors"
+            >
               terms
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              to="/privacy"
+              className="text-muted-foreground hover:text-foreground hover:underline transition-colors"
+            >
               privacy policy
-            </a>
+            </Link>
             .
           </p>
         </div>

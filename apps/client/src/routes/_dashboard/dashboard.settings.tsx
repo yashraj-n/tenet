@@ -15,7 +15,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, ChevronsUpDown, Check } from "lucide-react";
+import { Eye, EyeOff, ChevronsUpDown, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -332,9 +332,10 @@ function ModelSettingsPage() {
               href={selectedProvider.docUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] font-sans text-primary hover:underline"
+              className="text-[11px] font-sans text-primary hover:underline flex items-center gap-1 cursor-pointer select-none"
             >
-              API Dashboard
+              <span>{selectedProvider.name} API Dashboard</span>
+              <ExternalLink className="w-3 h-3" />
             </a>
           </div>
 

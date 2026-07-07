@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const footerLinks = {
   Project: [
@@ -103,7 +104,13 @@ export function FooterSection() {
         <div className="py-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-white/30">&copy; 2026 Tenet. ISC License.</p>
 
-          <div className="flex items-center gap-4 text-sm text-white/30">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/30">
+            <Link to="/terms" className="hover:text-white transition-colors">
+              Terms &amp; Conditions
+            </Link>
+            <Link to="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#eca8d6]" />
               Open Source
