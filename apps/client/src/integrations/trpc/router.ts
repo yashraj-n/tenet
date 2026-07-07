@@ -416,11 +416,44 @@ export const appRouter = createTRPCRouter({
     }),
 
   getRuns: protectedProcedure.query(async ({ ctx }) => {
-    return prisma.run.findMany({
+    const runs = await prisma.run.findMany({
       where: { userId: ctx.user.id },
       orderBy: { createdAt: "desc" },
       take: 50,
     });
+
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+
+    const timedOutRunIds: string[] = [];
+    const modifiedRuns = runs.map((run) => {
+      const isPending = run.status === "running" || run.status === "queued";
+      if (isPending && new Date(run.createdAt) < tenMinutesAgo) {
+        timedOutRunIds.push(run.id);
+        return {
+          ...run,
+          status: "failed",
+          errorMessage: "Job execution timed out (exceeded 10 minutes limit)",
+        };
+      }
+      return run;
+    });
+
+    if (timedOutRunIds.length > 0) {
+      prisma.run
+        .updateMany({
+          where: { id: { in: timedOutRunIds } },
+          data: {
+            status: "failed",
+            errorMessage: "Job execution timed out (exceeded 10 minutes limit)",
+          },
+        })
+        .catch((err) => {
+          console.error("Failed to update timed out runs in background:", err);
+        });
+    }
+
+    return modifiedRuns;
   }),
 
   getTracingState: protectedProcedure.query(async ({ ctx }) => {
