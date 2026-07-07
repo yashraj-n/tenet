@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { FolderGit2, Star } from "lucide-react";
 import type { Repo } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../../integrations/trpc/react";
 
 interface RepoItemProps {
   repo: Repo;
@@ -15,11 +17,22 @@ export function RepoItem({ repo }: RepoItemProps) {
   };
 
   const dotColor = languageColorMap[repo.language] || "bg-gray-400";
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const handleMouseEnter = () => {
+    const [owner, name] = repo.fullName.split("/");
+    if (owner && name) {
+      queryClient.prefetchQuery(trpc.getIssues.queryOptions({ owner, repo: name }));
+      queryClient.prefetchQuery(trpc.getPullRequests.queryOptions({ owner, repo: name }));
+    }
+  };
 
   return (
     <Link
       to="/dashboard/$repoId"
       params={{ repoId: repo.id }}
+      onMouseEnter={handleMouseEnter}
       className="group flex flex-col gap-1.5 p-4 rounded-lg border border-transparent hover:bg-foreground/[0.02] hover:border-border/40 active:bg-foreground/[0.04] transition-all duration-200 select-none cursor-pointer"
       activeProps={{
         className: "bg-foreground/[0.04]! border-border/80! shadow-sm shadow-black/10",
