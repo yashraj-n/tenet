@@ -22,6 +22,7 @@ model User {
   accounts        Account[]
   providerConfigs ProviderConfig[]
   runs            Run[]
+  tracingDisabled Boolean   @default(false)
 
   @@map("user")
 }

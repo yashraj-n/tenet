@@ -422,6 +422,22 @@ export const appRouter = createTRPCRouter({
       take: 50,
     });
   }),
+
+  getTracingState: protectedProcedure.query(async ({ ctx }) => {
+    const user = await prisma.user.findUnique({
+      where: { id: ctx.user.id },
+      select: { tracingDisabled: true },
+    });
+    return user?.tracingDisabled ?? false;
+  }),
+
+  setTracingState: protectedProcedure.input(z.boolean()).mutation(async ({ ctx, input }) => {
+    await prisma.user.update({
+      where: { id: ctx.user.id },
+      data: { tracingDisabled: input },
+    });
+    return { success: true };
+  }),
 });
 
 export type TRPCRouter = typeof appRouter;
