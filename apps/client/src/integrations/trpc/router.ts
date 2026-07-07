@@ -5,7 +5,11 @@ import { encrypt } from "../../lib/crypto.server";
 import { prisma } from "../../db";
 import crypto from "node:crypto";
 import { startAgentJob } from "../../lib/agent-job.server";
-import { getInstalledRepos, getInstallationOctokitForRepo } from "../../lib/github-app.server";
+import {
+  getInstalledRepos,
+  getInstallationOctokitForRepo,
+  getRepo,
+} from "../../lib/github-app.server";
 
 async function checkAndUpdateQuota(userId: string) {
   const user = await prisma.user.findUnique({
@@ -76,8 +80,7 @@ export const appRouter = createTRPCRouter({
     }),
 
   getRepo: protectedProcedure.input(z.object({ repoId: z.string() })).query(async ({ input }) => {
-    const all = await getInstalledRepos(1, 1000);
-    return all.items.find((r) => r.id === input.repoId) || null;
+    return getRepo(input.repoId);
   }),
 
   getQuota: protectedProcedure.query(async ({ ctx }) => {

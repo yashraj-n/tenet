@@ -60,7 +60,7 @@ function RunsPage() {
           Runs History
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Review chronological container solver executions, logs, and pull request outputs.
+          Track and review automated code corrections, PR reviews, and execution logs.
         </p>
       </div>
 
@@ -212,53 +212,75 @@ function RunsPage() {
                     </button>
 
                     {expandedReviews[run.id] && (
-                      <div className="bg-black/35 border border-border/40 rounded-lg p-4 font-mono text-[11px] leading-relaxed text-muted-foreground mt-1 max-w-3xl animate-fade-in">
-                        <div className="flex items-center justify-between border-b border-border/20 pb-2 mb-2">
-                          <span className="text-foreground/45">// SECURITY AUDIT FEED</span>
-                          <span className="text-[10px] font-semibold text-emerald-400">
-                            RECOMMENDATION: {review.verdict.recommendation.toUpperCase()}
+                      <div className="border border-border/30 bg-foreground/[0.01] rounded-xl p-5 mt-3 max-w-3xl space-y-5 animate-fade-in">
+                        {/* Audit Header */}
+                        <div className="flex items-center justify-between border-b border-border/20 pb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                              Security Review
+                            </span>
+                          </div>
+                          <span
+                            className={cn(
+                              "text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full select-none",
+                              review.verdict.recommendation === "approve"
+                                ? "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
+                                : "text-amber-500 bg-amber-500/10 border border-amber-500/20",
+                            )}
+                          >
+                            verdict: {review.verdict.recommendation}
                           </span>
                         </div>
 
                         {review.issues.length === 0 ? (
-                          <div className="text-emerald-400 font-semibold">
-                            ● No security vulnerabilities found.
+                          <div className="text-xs text-emerald-400 font-mono flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            No security vulnerabilities found.
                           </div>
                         ) : (
-                          <div className="space-y-4">
+                          <div className="divide-y divide-border/10">
                             {review.issues.map((issue) => (
                               <div
                                 key={`${issue.file}:${issue.line}:${issue.title}`}
-                                className="space-y-1 border-b border-border/10 pb-3 last:border-b-0 last:pb-0"
+                                className="py-4 first:pt-0 last:pb-0 space-y-2.5"
                               >
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span
-                                    className={cn(
-                                      "px-1 py-0.5 rounded text-[9px] font-bold text-black select-none leading-none",
-                                      issue.severity === "high"
-                                        ? "bg-red-400"
-                                        : issue.severity === "medium"
-                                          ? "bg-amber-400"
-                                          : "bg-blue-400",
-                                    )}
-                                  >
-                                    {issue.severity.toUpperCase()}
-                                  </span>
-                                  <span className="text-foreground/80 font-medium">
-                                    {issue.title}
-                                  </span>
-                                  <span className="text-foreground/40 text-[10px] ml-auto">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2.5">
+                                    <span
+                                      className={cn(
+                                        "text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border leading-none select-none",
+                                        issue.severity === "high"
+                                          ? "text-red-400 border-red-400/20 bg-red-400/5"
+                                          : issue.severity === "medium"
+                                            ? "text-amber-400 border-amber-400/20 bg-amber-400/5"
+                                            : "text-blue-400 border-blue-400/20 bg-blue-400/5",
+                                      )}
+                                    >
+                                      {issue.severity.toUpperCase()}
+                                    </span>
+                                    <span className="text-sm font-sans font-medium text-foreground">
+                                      {issue.title}
+                                    </span>
+                                  </div>
+                                  <span className="text-[11px] font-mono text-muted-foreground/60">
                                     {issue.file}
                                     {issue.line ? `:${issue.line}` : ""}
                                   </span>
                                 </div>
-                                <p className="text-foreground/75 leading-normal">{issue.details}</p>
-                                <p className="text-primary font-medium flex items-center gap-1.5 flex-wrap">
-                                  <span>Autofix prompt:</span>
-                                  <code className="bg-foreground/5 px-1.5 py-0.5 rounded text-[10px] font-mono text-foreground/85 border border-border/20">
-                                    {issue.autofixPrompt}
-                                  </code>
+                                <p className="text-xs text-muted-foreground font-sans leading-relaxed pl-1">
+                                  {issue.details}
                                 </p>
+
+                                {issue.autofixPrompt && (
+                                  <div className="bg-black/35 border border-border/20 rounded-lg p-3 font-mono text-[11px] text-foreground/90 space-y-1.5 mt-2">
+                                    <span className="text-[9px] text-muted-foreground/40 uppercase tracking-widest block font-sans select-none">
+                                      Suggested Correction
+                                    </span>
+                                    <code className="text-primary/95 leading-normal block overflow-x-auto select-all whitespace-pre-wrap">
+                                      {issue.autofixPrompt}
+                                    </code>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>

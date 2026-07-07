@@ -9,6 +9,8 @@ import {
   Terminal,
   Settings,
   Loader2,
+  Mail,
+  Bug,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../integrations/trpc/react";
@@ -147,6 +149,24 @@ function UserNav() {
             </div>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <a href="mailto:tenet@yashrajn.com" className="cursor-pointer flex items-center w-full">
+            <Mail className="mr-2 h-4 w-4 text-muted-foreground/80" />
+            <span>Contact Us</span>
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href="https://github.com/yashraj-n/aura-ai-agent/issues/new"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer flex items-center w-full"
+          >
+            <Bug className="mr-2 h-4 w-4 text-muted-foreground/80" />
+            <span>Report Bug</span>
+          </a>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
@@ -335,7 +355,7 @@ function DashboardLayout() {
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground/60" />
               <input
                 type="text"
-                placeholder="Filter repositories..."
+                placeholder="Search repositories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-[#eca8d6]/50 transition-all font-mono"

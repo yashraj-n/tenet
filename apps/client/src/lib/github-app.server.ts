@@ -69,3 +69,40 @@ export async function getInstallationOctokitForRepo(owner: string, repo: string)
   });
   return app.getInstallationOctokit(installation.id);
 }
+
+export async function getRepo(repoId: string) {
+  const app = getApp();
+  const { data: installations } = await app.octokit.rest.apps.listInstallations();
+
+  for (const installation of installations) {
+    const octokit = await app.getInstallationOctokit(installation.id);
+    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
+      per_page: 100,
+    });
+
+    const matched = data.repositories.find((r) => String(r.id) === repoId);
+    if (matched) {
+      const { data: pullsSearch } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${matched.full_name} is:pr state:open`,
+        per_page: 1,
+      });
+      const { data: issuesSearch } = await octokit.rest.search.issuesAndPullRequests({
+        q: `repo:${matched.full_name} is:issue state:open`,
+        per_page: 1,
+      });
+
+      return {
+        id: String(matched.id),
+        name: matched.name,
+        fullName: matched.full_name,
+        description: matched.description ?? undefined,
+        stars: matched.stargazers_count || 0,
+        language: matched.language || "TypeScript",
+        openIssuesCount: issuesSearch.total_count,
+        openPullsCount: pullsSearch.total_count,
+      };
+    }
+  }
+
+  return null;
+}
