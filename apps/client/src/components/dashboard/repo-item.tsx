@@ -33,7 +33,7 @@ export function RepoItem({ repo }: RepoItemProps) {
       to="/dashboard/$repoId"
       params={{ repoId: repo.id }}
       onMouseEnter={handleMouseEnter}
-      className="group flex flex-col gap-1.5 p-4 rounded-lg border border-transparent hover:bg-foreground/[0.02] hover:border-border/40 active:bg-foreground/[0.04] transition-all duration-200 select-none cursor-pointer"
+      className="group flex flex-col gap-1.5 p-4 rounded-lg border border-transparent border-l-2 border-l-transparent hover:border-l-[#eca8d6]/30 hover:bg-foreground/[0.02] hover:border-border/40 hover:translate-x-0.5 active:bg-foreground/[0.04] transition-all duration-200 select-none cursor-pointer"
       activeProps={{
         className: "bg-foreground/[0.04]! border-border/80! shadow-sm shadow-black/10",
       }}
