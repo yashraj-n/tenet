@@ -310,7 +310,7 @@ function DashboardLayout() {
               className={cn(
                 "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200",
                 isRepositoriesActive
-                  ? "bg-foreground/[0.04] text-foreground"
+                  ? "bg-foreground/[0.04] text-foreground nav-link-active"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]",
                 !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
               )}
@@ -323,7 +323,7 @@ function DashboardLayout() {
               className={cn(
                 "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200",
                 isRunsActive
-                  ? "bg-foreground/[0.04] text-foreground"
+                  ? "bg-foreground/[0.04] text-foreground nav-link-active"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]",
                 !hasAnyConfigured && "pointer-events-none opacity-30 select-none",
               )}
@@ -335,7 +335,7 @@ function DashboardLayout() {
               to="/dashboard/settings"
               className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors duration-200 ${
                 isSettingsActive
-                  ? "bg-foreground/[0.04] text-foreground"
+                  ? "bg-foreground/[0.04] text-foreground nav-link-active"
                   : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.02]"
               }`}
             >
@@ -381,9 +381,9 @@ function DashboardLayout() {
 
             {isLoading ? (
               <div className="space-y-2 px-3 py-4">
-                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
-                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
-                <div className="h-10 bg-foreground/[0.03] border border-border/20 rounded-lg animate-pulse" />
+                <div className="h-10 rounded-lg skeleton-shimmer" />
+                <div className="h-10 rounded-lg skeleton-shimmer" />
+                <div className="h-10 rounded-lg skeleton-shimmer" />
               </div>
             ) : filteredRepos.length > 0 ? (
               filteredRepos.map((repo: any) => <RepoItem key={repo.id} repo={repo} />)
@@ -435,7 +435,9 @@ function DashboardLayout() {
 
         {/* Content View */}
         <main className="pl-[300px] flex-1 min-h-full flex flex-col bg-background">
-          <Outlet />
+          <div key={location.pathname} className="content-enter flex-1 flex flex-col">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

@@ -253,4 +253,69 @@
       background-position: 0% 50%;
     }
   }
+
+  /* ── QOL Dashboard Animations ── */
+
+  /* Directional shimmer for skeleton loading placeholders */
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: oklch(0.12 0.008 260);
+  }
+
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.18 0.005 260 / 0.4) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Content area enter — subtle settle-in for route changes */
+  .content-enter {
+    animation: content-settle 0.25s ease-out both;
+  }
+
+  @keyframes content-settle {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Sidebar nav link active bar — vertical accent indicator */
+  .nav-link-active {
+    position: relative;
+  }
+
+  .nav-link-active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 25%;
+    bottom: 25%;
+    width: 2px;
+    border-radius: 1px;
+    background: #eca8d6;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
 }
