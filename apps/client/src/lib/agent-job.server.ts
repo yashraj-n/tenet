@@ -1,5 +1,5 @@
 import { env } from "#/env";
-import { gcpJobsClient } from "#/lib/gcp.server";
+import { runCloudRunJob } from "#/lib/gcp.server";
 import { App } from "octokit";
 import { prisma } from "../db";
 import { decrypt } from "./crypto.server";
@@ -41,7 +41,7 @@ export async function startAgentJob(opts: {
   });
   const tracingDisabled = user?.tracingDisabled ?? false;
 
-  const [operation] = await gcpJobsClient.runJob({
+  const operation = await runCloudRunJob({
     name: `projects/${env.GOOGLE_PROJECT_ID}/locations/${env.GOOGLE_PROJECT_REGION}/jobs/${env.GOOGLE_CLOUD_RUN_WORKER_NAME}`,
     overrides: {
       containerOverrides: [
