@@ -171,20 +171,21 @@ export const appRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
 
-      const { data: searchResult } = await octokit.rest.search.issuesAndPullRequests({
-        q: `repo:${input.owner}/${input.repo} is:issue state:open`,
-        per_page: 1,
-      });
-
-      const { data: issues } = await octokit.rest.issues.listForRepo({
-        owner: input.owner,
-        repo: input.repo,
-        state: "open",
-        sort: "created",
-        direction: "desc",
-        page: input.page,
-        per_page: input.limit,
-      });
+      const [{ data: searchResult }, { data: issues }] = await Promise.all([
+        octokit.rest.search.issuesAndPullRequests({
+          q: `repo:${input.owner}/${input.repo} is:issue state:open`,
+          per_page: 1,
+        }),
+        octokit.rest.issues.listForRepo({
+          owner: input.owner,
+          repo: input.repo,
+          state: "open",
+          sort: "created",
+          direction: "desc",
+          page: input.page,
+          per_page: input.limit,
+        }),
+      ]);
 
       const items = issues
         .filter((issue) => !issue.pull_request)
@@ -230,20 +231,21 @@ export const appRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
 
-      const { data: searchResult } = await octokit.rest.search.issuesAndPullRequests({
-        q: `repo:${input.owner}/${input.repo} is:pr state:open`,
-        per_page: 1,
-      });
-
-      const { data: pulls } = await octokit.rest.pulls.list({
-        owner: input.owner,
-        repo: input.repo,
-        state: "open",
-        sort: "created",
-        direction: "desc",
-        page: input.page,
-        per_page: input.limit,
-      });
+      const [{ data: searchResult }, { data: pulls }] = await Promise.all([
+        octokit.rest.search.issuesAndPullRequests({
+          q: `repo:${input.owner}/${input.repo} is:pr state:open`,
+          per_page: 1,
+        }),
+        octokit.rest.pulls.list({
+          owner: input.owner,
+          repo: input.repo,
+          state: "open",
+          sort: "created",
+          direction: "desc",
+          page: input.page,
+          per_page: input.limit,
+        }),
+      ]);
 
       const items = pulls.map((pr) => {
         const labels = (pr.labels || []).map((lbl) => {
