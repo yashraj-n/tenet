@@ -180,7 +180,7 @@ export function HeroSection() {
           >
             <span className="inline-flex items-center gap-3 text-sm font-mono text-white/60">
               <span className="w-8 h-px bg-white/30" />
-              Open-source AI agent for GitHub
+              Open-source · Free forever
             </span>
           </div>
 
@@ -207,9 +207,8 @@ export function HeroSection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Tenet is an open-source GitHub App that clones your repository, analyzes issues, makes
-            codebase edits, runs tests, and pushes pull requests automatically in a secure
-            container.
+            Point Tenet at a GitHub issue and it writes the fix, opens a pull request, and waits for
+            your review. No babysitting. No back-and-forth.
           </p>
 
           {/* CTA Buttons */}
@@ -253,8 +252,8 @@ export function HeroSection() {
         <div className="max-w-[1400px] mx-auto flex items-start gap-10 lg:gap-20">
           {[
             { value: "Open Source", label: "ISC Licensed" },
-            { value: "7+", label: "LLM providers supported" },
-            { value: "Sandboxed", label: "runs securely in Docker" },
+            { value: "7+ AI Models", label: "use your own keys" },
+            { value: "Fully Sandboxed", label: "your code stays safe" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-2">
               <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>

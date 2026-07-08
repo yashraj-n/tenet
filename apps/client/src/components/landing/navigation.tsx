@@ -6,7 +6,7 @@ import { Menu, X, Github } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 const navLinks = [
-  { name: "Features", href: "#features" },
+  { name: "What It Does", href: "#features" },
   { name: "How It Works", href: "#how-it-works" },
   { name: "Providers", href: "#integrations" },
   { name: "Security", href: "#security" },

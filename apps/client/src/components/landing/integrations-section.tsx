@@ -2,61 +2,19 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const logos: Record<string, React.ReactNode> = {
-  OpenAI: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.896zm16.597 3.855l-5.843-3.372 2.02-1.163a.076.076 0 0 1 .071 0l4.83 2.786a4.49 4.49 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.402-.678zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
-    </svg>
-  ),
-  Anthropic: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M13.827 3.52h3.603L24 20.48h-3.603l-6.57-16.96zm-7.258 0h3.767L16.906 20.48h-3.674l-1.343-3.461H5.017l-1.344 3.46H0L6.57 3.522zm4.132 10.959L8.453 7.687 6.205 14.48H10.7z" />
-    </svg>
-  ),
-  "Google Gemini": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-      <path
-        d="M12 3v18M3 12h18M12 3l4.5 4.5M12 21l-4.5-4.5M3 12l4.5 4.5M21 12l-4.5-4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  "Azure OpenAI": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-      <path
-        d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  "Mistral AI": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-      <path
-        d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44L2.5 6.22A2.5 2.5 0 0 1 4.54 3h5zM14.5 2a2.5 2.5 0 0 1 5 1.22l-4.54 13.72a2.5 2.5 0 0 1-4.96-.44v-12A2.5 2.5 0 0 1 14.5 2z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  Cohere: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 8a4 4 0 1 0 4 4" strokeLinecap="round" />
-    </svg>
-  ),
-  OpenRouter: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M9 3v18M15 3v18M3 9h18M3 15h18" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
+const logoUrls: Record<string, string> = {
+  OpenAI: "https://models.dev/logos/openai.svg",
+  Anthropic: "https://models.dev/logos/anthropic.svg",
+  "Google Gemini": "https://models.dev/logos/gemini.svg",
+  "Azure OpenAI": "https://models.dev/logos/azure.svg",
+  "Mistral AI": "https://models.dev/logos/mistral.svg",
+  Cohere: "https://models.dev/logos/cohere.svg",
+  OpenRouter: "https://models.dev/logos/openrouter.svg",
 };
 
 const integrations = [
-  { name: "OpenAI", category: "GPT-4o, o3-mini" },
-  { name: "Anthropic", category: "Claude 3.5 Sonnet" },
+  { name: "OpenAI", category: "o1, o3-mini" },
+  { name: "Anthropic", category: "Claude 3.7 Sonnet" },
   { name: "Google Gemini", category: "Gemini 2.5 Pro" },
   { name: "Azure OpenAI", category: "Enterprise models" },
   { name: "Mistral AI", category: "Mistral Large" },
@@ -92,7 +50,7 @@ export function IntegrationsSection() {
           }`}
         >
           <span className="w-12 h-px bg-foreground/20" />
-          Model Providers
+          AI Models
           <span className="w-12 h-px bg-foreground/20" />
         </span>
 
@@ -103,7 +61,7 @@ export function IntegrationsSection() {
         >
           Pick your
           <br />
-          <span className="text-muted-foreground">provider.</span>
+          <span className="text-muted-foreground">model.</span>
         </h2>
 
         <p
@@ -111,8 +69,8 @@ export function IntegrationsSection() {
             isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
-          Tenet supports 7 LLM providers natively via Vercel AI SDK. Use any model from any
-          provider—just configure your environment variables.
+          Bring your own API key from any major AI provider. Tenet works with all of them — just
+          plug it in from your dashboard.
         </p>
       </div>
 
@@ -180,12 +138,14 @@ export function IntegrationsSection() {
               </span>
 
               {/* Logo */}
-              <div
-                className={`w-10 h-10 mb-6 flex items-center justify-center transition-colors ${
-                  hoveredIndex === index ? "text-white" : "text-foreground/60"
-                }`}
-              >
-                {logos[integration.name]}
+              <div className="w-16 h-16 mb-6 flex items-center justify-center">
+                <img
+                  src={logoUrls[integration.name]}
+                  alt={integration.name}
+                  className={`w-12 h-12 object-contain transition-all duration-300 brightness-0 invert ${
+                    hoveredIndex === index ? "opacity-100 scale-110" : "opacity-60 scale-100"
+                  }`}
+                />
               </div>
 
               <span className="font-medium block">{integration.name}</span>
@@ -210,9 +170,9 @@ export function IntegrationsSection() {
         >
           <div className="flex flex-wrap gap-12">
             {[
-              { value: "7 Providers", label: "Supported natively" },
-              { value: "Any Model", label: "Dynamic configuration" },
-              { value: "BYOK", label: "No vendor lock-in" },
+              { value: "7+ Providers", label: "plug and play" },
+              { value: "Any Model", label: "switch anytime" },
+              { value: "Your keys", label: "we never see your prompts or responses" },
             ].map((stat) => (
               <div key={stat.label} className="flex items-baseline gap-3">
                 <span className="text-3xl font-display">{stat.value}</span>

@@ -5,44 +5,23 @@ import { useEffect, useRef, useState } from "react";
 const steps = [
   {
     number: "01",
-    title: "Install the app",
-    subtitle: "on GitHub",
-    description:
-      "Install the Tenet GitHub App on your repository. Configure permissions to allow contents:write, issues:write, and pull_requests:write.",
-    code: `# Clone the repo
-git clone https://github.com/yashraj-n/aura-ai-agent.git tenet
-cd tenet
-
-# Install dependencies and setup environment variables
-bun install
-cp packages/agent/.env.example packages/agent/.env
-# Fill in your APP_ID, PRIVATE_KEY, and LLM provider credentials`,
+    title: "Install Tenet",
+    subtitle: "on your repo",
+    description: "Add the Tenet GitHub App to any repository. One click, takes 30 seconds.",
   },
   {
     number: "02",
-    title: "Comment /build",
+    title: "Type /tenet-build",
     subtitle: "on any issue",
     description:
-      "When a bug arises or a new feature is requested, open a GitHub issue and post a comment with /build. The app will immediately trigger.",
-    code: `# Create a GitHub issue explaining the task
-# Example comment on issue #42:
-/build
-
-# Tenet spawns a docker container securely:
-# docker run -e REPO_NAME=tenet -e ISSUE_ID=42 agent-pr-image`,
+      "When an issue needs fixing, drop a comment with /tenet-build. Tenet picks it up immediately.",
   },
   {
     number: "03",
-    title: "Merge the PR",
-    subtitle: "upon validation",
+    title: "Review and merge",
+    subtitle: "you stay in control",
     description:
-      "Tenet runs in a sandboxed Docker container, edits the code, runs validation checks, and opens a Pull Request. Review and merge it.",
-    code: `# Pull request generated automatically by Tenet AI Agent:
-# "Resolve issue #42: Fix caching logic in auth middleware"
-
-# Review the code changes, run tests, and merge:
-git checkout main
-git merge fix/issue-42`,
+      "Tenet opens a pull request with the fix. Your team reviews it like any other PR \u2014 merge when you're happy.",
   },
 ];
 
@@ -88,7 +67,7 @@ export function HowItWorksSection() {
             >
               <span className="inline-flex items-center gap-3 text-sm font-mono text-white/40 mb-8">
                 <span className="w-12 h-px bg-white/20" />
-                Process
+                Three steps
               </span>
             </div>
 
@@ -170,19 +149,6 @@ export function HowItWorksSection() {
               />
             </button>
           ))}
-        </div>
-
-        {/* Code Preview - Large terminal */}
-        <div className="mt-8 bg-black border border-white/10 p-6 lg:p-8 rounded-2xl relative overflow-hidden">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <span className="w-3 h-3 rounded-full bg-green-500/80" />
-            <span className="text-xs font-mono text-white/40 ml-2">terminal — tenet</span>
-          </div>
-          <pre className="font-mono text-sm lg:text-base text-white/80 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-            <code>{steps[activeStep].code}</code>
-          </pre>
         </div>
       </div>
 

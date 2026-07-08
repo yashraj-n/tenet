@@ -5,28 +5,27 @@ import { Shield, Lock, Eye, FileCheck } from "lucide-react";
 
 const securityFeatures = [
   {
-    icon: Shield,
-    title: "Sandboxed execution",
-    description:
-      "Each agent run spins up an isolated Docker container, protecting your codebase and hosting environment.",
+    icon: FileCheck,
+    title: "Open source",
+    description: "Every line of Tenet's code is public. Audit it, fork it, contribute to it.",
   },
   {
     icon: Lock,
-    title: "Encrypted API keys",
+    title: "Encrypted keys",
     description:
-      "Your LLM provider credentials are stored securely in your database, encrypted using industry-standard AES-256.",
+      "Your API keys are encrypted the moment you save them. We never store them in plain text.",
+  },
+  {
+    icon: Shield,
+    title: "Isolated execution",
+    description:
+      "Each fix runs in its own sandboxed environment. Your live code is never touched until you merge.",
   },
   {
     icon: Eye,
-    title: "Minimal scoped permissions",
+    title: "Minimal permissions",
     description:
-      "The GitHub App only requests minimal write permissions: contents write, issues write, and pull_requests write.",
-  },
-  {
-    icon: FileCheck,
-    title: "100% self-hosted privacy",
-    description:
-      "You host it yourself. No code, tokens, metadata, or logs are ever transmitted to third-party servers.",
+      "Tenet only requests the GitHub permissions it strictly needs to read issues and open pull requests.",
   },
 ];
 
@@ -76,9 +75,9 @@ export function SecuritySection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            Autonomous,
+            Powerful,
             <br />
-            <span className="text-muted-foreground">not uncontrolled.</span>
+            <span className="text-muted-foreground">not reckless.</span>
           </h2>
 
           {/* Description — below title */}
@@ -88,8 +87,8 @@ export function SecuritySection() {
             }`}
           >
             <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-              Your agents are powerful but constrained. Open-source design gives you full control
-              and visibility over every action.
+              Tenet is open-source — every line of code is public and auditable. Your API keys are
+              encrypted at rest, and every fix runs in an isolated environment.
             </p>
           </div>
         </div>
@@ -107,7 +106,7 @@ export function SecuritySection() {
               <div className="mt-8">
                 <span className="text-7xl lg:text-8xl font-display">100%</span>
                 <span className="block text-muted-foreground mt-2">
-                  Code & keys run on your own infrastructure
+                  open source — read every line on GitHub
                 </span>
               </div>
             </div>
@@ -116,11 +115,11 @@ export function SecuritySection() {
             <div className="mt-12 p-4 bg-foreground/[0.02] border border-foreground/10 rounded-lg">
               <h4 className="text-sm font-medium mb-1 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#eca8d6]" />
-                Zero external tracking
+                Your keys are encrypted
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Tenet connects directly from your GitHub webhook server to your local Docker socket.
-                No intermediary API.
+                API keys are encrypted at rest using industry-grade encryption. They're only used to
+                run your chosen AI model during a fix.
               </p>
             </div>
           </div>
