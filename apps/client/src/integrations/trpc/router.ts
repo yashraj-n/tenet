@@ -252,9 +252,9 @@ export const appRouter = createTRPCRouter({
       return [
         { id: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google" },
         { id: "google/gemini-2.5-pro", name: "Gemini 2.5 Pro", provider: "google" },
-        { id: "openai/gpt-4o", name: "GPT-4o", provider: "openai" },
-        { id: "openai/gpt-4o-mini", name: "GPT-4o Mini", provider: "openai" },
-        { id: "anthropic/claude-3-5-sonnet", name: "Claude 3.5 Sonnet", provider: "anthropic" },
+        { id: "openai/o1", name: "o1", provider: "openai" },
+        { id: "openai/o3-mini", name: "o3-mini", provider: "openai" },
+        { id: "anthropic/claude-3-7-sonnet", name: "Claude 3.7 Sonnet", provider: "anthropic" },
         { id: "cohere/command-r-plus", name: "Command R+", provider: "cohere" },
         { id: "mistral/mistral-large-latest", name: "Mistral Large", provider: "mistral" },
       ];

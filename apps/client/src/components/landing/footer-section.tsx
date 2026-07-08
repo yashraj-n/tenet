@@ -58,8 +58,7 @@ export function FooterSection() {
               </a>
 
               <p className="text-white/50 leading-relaxed mb-8 max-w-xs text-sm">
-                Open-source AI agent that automatically resolves GitHub issues and creates Pull
-                Requests.
+                AI that fixes your GitHub issues and opens pull requests — automatically.
               </p>
 
               {/* Social Links */}

@@ -52,14 +52,14 @@ export function CtaSection() {
               {/* Left content */}
               <div className="flex-1">
                 <h2 className="text-6xl md:text-7xl lg:text-[64px] font-display tracking-tight mb-8 leading-[0.95]">
-                  Ready to automate
+                  Stop fixing bugs
                   <br />
-                  your issues?
+                  your AI could handle.
                 </h2>
 
                 <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
-                  Tenet is open-source, free, and runs securely on your own hardware. Star the
-                  repository and install it in minutes.
+                  Tenet is free, open-source, and takes minutes to set up. Bring your API key,
+                  connect your repo, and let it work.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -89,7 +89,7 @@ export function CtaSection() {
                 </div>
 
                 <p className="text-sm text-muted-foreground mt-8 font-mono">
-                  ISC Licensed · Open Source · Built by Yashraj Narke
+                  Free forever · Open Source · Built by Yashraj Narke
                 </p>
               </div>
 

@@ -5,31 +5,31 @@ import { useEffect, useRef, useState } from "react";
 const features = [
   {
     number: "01",
-    title: "Isolated Codebase Cloning",
+    title: "Reads the full picture",
     description:
-      "Upon receiving a /build command on an issue, Tenet spins up a secure Docker container, clones your repository, and checks out a clean workspace.",
-    stats: { value: "Git Clone", label: "isolated workspace" },
+      "Tenet reads the issue title, description, and every comment to understand exactly what needs to happen before touching a single line.",
+    stats: { value: "Context", label: "deep understanding" },
   },
   {
     number: "02",
-    title: "Semantic Issue Analysis",
+    title: "Works in a safe copy",
     description:
-      "Tenet reads the issue description, payload data, and all comments to build a complete mental model of the requirements or bug details before touching code.",
-    stats: { value: "AI Context", label: "deep semantic reading" },
+      "Your live code is never at risk. Tenet works on its own copy of the repository in a secure environment.",
+    stats: { value: "Isolation", label: "safe environment" },
   },
   {
     number: "03",
-    title: "Autonomous Code Repair",
+    title: "Writes the fix",
     description:
-      "Using custom agent tools (grep, replace, bash), Tenet navigates the codebase, applies targeted edits, and runs your linter and test scripts to verify correctness.",
-    stats: { value: "Code Edit", label: "autonomous task execution" },
+      "It navigates your codebase, makes targeted edits, and runs your project's own tests and checks to make sure nothing breaks.",
+    stats: { value: "Code", label: "targeted edits" },
   },
   {
     number: "04",
-    title: "Automated Pull Requests",
+    title: "Opens a pull request",
     description:
-      "Once changes are validated, Tenet commits them, pushes a new feature branch, and opens a clean GitHub Pull Request, referencing the original issue.",
-    stats: { value: "Git Push", label: "pull request opened" },
+      "When everything passes, Tenet pushes a clean branch and opens a PR that links back to the original issue. You review and merge.",
+    stats: { value: "Delivery", label: "ready for review" },
   },
 ];
 
@@ -164,9 +164,9 @@ export function FeaturesSection() {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
               >
-                Code changes.
+                Describe the problem.
                 <br />
-                <span className="text-muted-foreground">Automated.</span>
+                <span className="text-muted-foreground">Get a fix.</span>
               </h2>
             </div>
             <div className="lg:col-span-5 lg:pb-4">
@@ -175,8 +175,8 @@ export function FeaturesSection() {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 }`}
               >
-                Tenet operates like an autonomous developer. It runs your linter, tests, and
-                formatting checks before creating any pull requests. Zero manual labor.
+                Tenet reads your GitHub issues, understands what needs to change, edits the code,
+                and opens a pull request — ready for your review.
               </p>
             </div>
           </div>
