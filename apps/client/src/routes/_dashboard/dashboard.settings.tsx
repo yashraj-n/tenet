@@ -57,6 +57,7 @@ function ModelSettingsPage() {
   const [openModelPopover, setOpenModelPopover] = useState(false);
   const [useCustomModel, setUseCustomModel] = useState(false);
   const [customModelName, setCustomModelName] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const { data: availableModels = [] } = useQuery(trpc.getAvailableModels.queryOptions()) as any;
   const { data: activeConfigs = [] } = useQuery(trpc.getProviderConfigs.queryOptions()) as any;
@@ -75,9 +76,11 @@ function ModelSettingsPage() {
         setApiKey("");
         setShowKey(false);
         setIsConfiguring(true);
+        setValidationError(null);
       },
       onError: (err) => {
-        toast.error(err.message || "Failed to save configuration");
+        toast.error("Failed to save configuration");
+        setValidationError(err.message || "An unknown error occurred during validation");
       },
     }),
   );
@@ -129,6 +132,7 @@ function ModelSettingsPage() {
     const modelId = existing?.modelName || "";
     setApiKey("");
     setShowKey(false);
+    setValidationError(null);
 
     const modelsForThisProvider = (availableModels as any[]).filter(
       (m) =>
@@ -155,6 +159,7 @@ function ModelSettingsPage() {
       toast.error("API Key is required");
       return;
     }
+    setValidationError(null);
     const finalModel = useCustomModel ? customModelName.trim() : selectedModel;
     saveConfig.mutate({
       provider: selectedProvider.slug,
@@ -462,9 +467,18 @@ function ModelSettingsPage() {
             </div>
           </div>
 
+          {validationError && (
+            <div className="p-3.5 rounded-lg border border-red-500/20 bg-red-500/5 text-red-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">
+              {validationError}
+            </div>
+          )}
+
           <div className="pt-2 border-t border-border/20">
             <Button
-              onClick={handleSave}
+              onClick={() => {
+                setValidationError(null);
+                handleSave();
+              }}
               disabled={saveConfig.isPending}
               className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium font-sans h-9 transition-colors cursor-pointer text-xs"
             >
