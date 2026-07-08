@@ -180,7 +180,7 @@ export function HeroSection() {
           >
             <span className="inline-flex items-center gap-3 text-sm font-mono text-white/60">
               <span className="w-8 h-px bg-white/30" />
-              Open-source · Free forever
+              Open-source · GitHub Issue Resolver
             </span>
           </div>
 
@@ -220,7 +220,7 @@ export function HeroSection() {
             <Link to="/login">
               <Button
                 size="lg"
-                className="rounded-full bg-white hover:bg-white/90 text-black px-8 h-14 text-base"
+                className="rounded-full bg-white hover:bg-white/90 text-black px-8 h-14 text-base cursor-pointer"
               >
                 Get Started
               </Button>
@@ -229,7 +229,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 h-14 text-base gap-2"
+                className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 h-14 text-base gap-2 cursor-pointer"
               >
                 <Github className="w-5 h-5" />
                 Star on GitHub
@@ -249,7 +249,7 @@ export function HeroSection() {
           {[
             { value: "Open Source", label: "ISC Licensed" },
             { value: "7+ AI Models", label: "use your own keys" },
-            { value: "Fully Sandboxed", label: "your code stays safe" },
+            { value: "Safe Executions", label: "your code stays safe" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-2">
               <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>
