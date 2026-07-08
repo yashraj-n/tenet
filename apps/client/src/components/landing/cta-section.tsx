@@ -66,7 +66,7 @@ export function CtaSection() {
                   <Link to="/login">
                     <Button
                       size="lg"
-                      className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
+                      className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group cursor-pointer"
                     >
                       Get Started
                       <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
@@ -80,17 +80,13 @@ export function CtaSection() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5 gap-2"
+                      className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5 gap-2 cursor-pointer"
                     >
                       <Github className="w-5 h-5" />
                       Star on GitHub
                     </Button>
                   </a>
                 </div>
-
-                <p className="text-sm text-muted-foreground mt-8 font-mono">
-                  Free forever · Open Source · Built by Yashraj Narke
-                </p>
               </div>
 
               {/* Right image */}

@@ -110,18 +110,6 @@ export function SecuritySection() {
                 </span>
               </div>
             </div>
-
-            {/* Styled badge inside card */}
-            <div className="mt-12 p-4 bg-foreground/[0.02] border border-foreground/10 rounded-lg">
-              <h4 className="text-sm font-medium mb-1 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#eca8d6]" />
-                Your keys are encrypted
-              </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                API keys are encrypted at rest using industry-grade encryption. They're only used to
-                run your chosen AI model during a fix.
-              </p>
-            </div>
           </div>
 
           {/* Feature cards stack */}

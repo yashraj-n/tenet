@@ -126,16 +126,6 @@ export function IntegrationsSection() {
                   }}
                 />
               )}
-              {/* Category tag */}
-              <span
-                className={`absolute top-3 right-3 text-[10px] font-mono px-2 py-0.5 transition-colors ${
-                  hoveredIndex === index
-                    ? "bg-foreground text-background"
-                    : "bg-foreground/10 text-muted-foreground"
-                }`}
-              >
-                {integration.category}
-              </span>
 
               {/* Logo */}
               <div className="w-16 h-16 mb-6 flex items-center justify-center">
