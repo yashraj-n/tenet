@@ -11,24 +11,24 @@ const footerLinks = {
     { name: "Security", href: "#security" },
   ],
   Resources: [
-    { name: "GitHub Repository", href: "https://github.com/yashraj-n/aura-ai-agent" },
-    { name: "Issues Tracker", href: "https://github.com/yashraj-n/aura-ai-agent/issues" },
+    { name: "GitHub Repository", href: "https://github.com/yashraj-n/tenet" },
+    { name: "Issues Tracker", href: "https://github.com/yashraj-n/tenet/issues" },
     { name: "PR References Guide", href: "#" },
   ],
   Community: [
     {
       name: "Contributing Guide",
-      href: "https://github.com/yashraj-n/aura-ai-agent/blob/main/CONTRIBUTING.md",
+      href: "https://github.com/yashraj-n/tenet/blob/main/CONTRIBUTING.md",
     },
     {
       name: "Code of Conduct",
-      href: "https://github.com/yashraj-n/aura-ai-agent/blob/main/CODE_OF_CONDUCT.md",
+      href: "https://github.com/yashraj-n/tenet/blob/main/CODE_OF_CONDUCT.md",
     },
-    { name: "License", href: "https://github.com/yashraj-n/aura-ai-agent/blob/main/LICENSE" },
+    { name: "License", href: "https://github.com/yashraj-n/tenet/blob/main/LICENSE" },
   ],
 };
 
-const socialLinks = [{ name: "GitHub", href: "https://github.com/yashraj-n/aura-ai-agent" }];
+const socialLinks = [{ name: "GitHub", href: "https://github.com/yashraj-n/tenet" }];
 
 export function FooterSection() {
   return (

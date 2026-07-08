@@ -70,7 +70,7 @@ export function Navigation() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="https://github.com/yashraj-n/aura-ai-agent"
+              href="https://github.com/yashraj-n/tenet"
               target="_blank"
               rel="noopener noreferrer"
               className={`transition-all duration-500 flex items-center gap-2 ${isScrolled ? "text-xs text-foreground/70 hover:text-foreground" : "text-sm text-white/70 hover:text-white"}`}
@@ -136,7 +136,7 @@ export function Navigation() {
               className="flex-1 rounded-full h-14 text-base gap-2"
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                window.open("https://github.com/yashraj-n/aura-ai-agent", "_blank");
+                window.open("https://github.com/yashraj-n/tenet", "_blank");
               }}
             >
               <Github className="w-5 h-5" />

@@ -28,13 +28,35 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Tenet — Resolve GitHub Issues Automatically with AI",
+        title: "Tenet — Automate GitHub Issue Resolution with AI",
       },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/favicon-16x16.png?v=5",
+        sizes: "16x16",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/favicon-32x32.png?v=5",
+        sizes: "32x32",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/logo192.png?v=5",
+        sizes: "192x192",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo192.png?v=5",
       },
     ],
   }),

@@ -10,6 +10,7 @@ import {
   Search,
   ArrowLeft,
   GitPullRequest,
+  Plus,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { IssueRow } from "@/components/dashboard/issue-row";
@@ -20,7 +21,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTRPC } from "../../integrations/trpc/react";
 import type { Issue, PullRequest } from "@/lib/types";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/_dashboard/dashboard/$repoId")({
+  head: ({ params }) =>
+    getSeoMetadata({
+      title: "Repository Details — Tenet AI",
+      description: "View connected issues, agent run logs, and code fixes for this repository.",
+      path: `/dashboard/${params.repoId}`,
+      noIndex: true,
+    }),
   component: RepoDetail,
 });
 
@@ -238,9 +248,18 @@ function RepoDetail() {
             <div className="flex flex-col items-center justify-center py-16 border border-dashed border-border/60 rounded-2xl bg-foreground/[0.005] select-none text-center">
               <CheckCircle className="w-10 h-10 text-emerald-400/80 mb-3" />
               <h4 className="text-sm font-sans font-medium text-foreground">All Caught Up!</h4>
-              <p className="text-xs text-muted-foreground max-w-xs mt-1">
+              <p className="text-xs text-muted-foreground max-w-xs mt-1 mb-6">
                 No open issues match your filter.
               </p>
+              <a
+                href={`https://github.com/${owner}/${name}/issues/new`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#eca8d6]/10 hover:bg-[#eca8d6]/20 text-[#eca8d6] border border-[#eca8d6]/30 hover:border-[#eca8d6]/50 rounded-lg px-4.5 py-2 text-xs font-medium tracking-wide transition-all duration-300 hover:shadow-[0_0_15px_-3px_rgba(236,168,214,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer font-sans"
+              >
+                <Plus className="w-4 h-4" />
+                Found something? Create an Issue
+              </a>
             </div>
           )}
         </TabsContent>

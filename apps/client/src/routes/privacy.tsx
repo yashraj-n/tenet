@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Eye } from "lucide-react";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/privacy")({
+  head: () =>
+    getSeoMetadata({
+      title: "Privacy Policy — Tenet AI",
+      description:
+        "Read the Privacy Policy for Tenet AI to understand how we collect, use, and protect your repository data, personal information, and GitHub OAuth tokens.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

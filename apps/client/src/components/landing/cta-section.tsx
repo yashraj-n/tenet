@@ -73,7 +73,7 @@ export function CtaSection() {
                     </Button>
                   </Link>
                   <a
-                    href="https://github.com/yashraj-n/aura-ai-agent"
+                    href="https://github.com/yashraj-n/tenet"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

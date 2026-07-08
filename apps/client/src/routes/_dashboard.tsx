@@ -159,7 +159,7 @@ function UserNav() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a
-            href="https://github.com/yashraj-n/aura-ai-agent/issues/new"
+            href="https://github.com/yashraj-n/tenet/issues/new"
             target="_blank"
             rel="noopener noreferrer"
             className="cursor-pointer flex items-center w-full"

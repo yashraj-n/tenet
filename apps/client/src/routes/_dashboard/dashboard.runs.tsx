@@ -7,7 +7,17 @@ import { formatDistanceToNow } from "date-fns";
 import { reviewResultSchema } from "@/lib/review-result";
 import { cn } from "@/lib/utils";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/_dashboard/dashboard/runs")({
+  head: () =>
+    getSeoMetadata({
+      title: "Runs & Jobs — Tenet AI",
+      description:
+        "Monitor active agent executions, review generated code diffs, and inspect build runs.",
+      path: "/dashboard/runs",
+      noIndex: true,
+    }),
   component: RunsPage,
 });
 

@@ -182,7 +182,7 @@ export function IntegrationsSection() {
           </div>
 
           <a
-            href="https://github.com/yashraj-n/aura-ai-agent"
+            href="https://github.com/yashraj-n/tenet"
             target="_blank"
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors"

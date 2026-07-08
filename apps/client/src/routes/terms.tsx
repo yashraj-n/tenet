@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Shield } from "lucide-react";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/terms")({
+  head: () =>
+    getSeoMetadata({
+      title: "Terms of Service — Tenet AI",
+      description:
+        "Read the Terms of Service for Tenet AI to understand the terms, rules, and conditions for using our automated GitHub issue resolution platform.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 
