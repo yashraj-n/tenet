@@ -11,6 +11,73 @@ import {
   getRepo,
   getDashboardStats,
 } from "../../lib/github-app.server";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogle } from "@ai-sdk/google";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createCohere } from "@ai-sdk/cohere";
+import { createMistral } from "@ai-sdk/mistral";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+
+function getDefaultModelForProvider(provider: string): string {
+  switch (provider) {
+    case "openai":
+      return "gpt-4o-mini";
+    case "google":
+      return "gemini-1.5-flash";
+    case "anthropic":
+      return "claude-3-5-haiku-20241022";
+    case "cohere":
+      return "command-r";
+    case "mistral":
+      return "open-mistral-7b";
+    case "openrouter":
+      return "google/gemini-2.5-flash";
+    default:
+      return "";
+  }
+}
+
+async function verifyApiKey(provider: string, apiKey: string, modelName?: string) {
+  let model;
+  const testModelId = modelName || getDefaultModelForProvider(provider);
+
+  try {
+    switch (provider) {
+      case "openai":
+        model = createOpenAI({ apiKey })(testModelId);
+        break;
+      case "google":
+        model = createGoogle({ apiKey })(testModelId);
+        break;
+      case "anthropic":
+        model = createAnthropic({ apiKey })(testModelId);
+        break;
+      case "cohere":
+        model = createCohere({ apiKey })(testModelId);
+        break;
+      case "mistral":
+        model = createMistral({ apiKey })(testModelId);
+        break;
+      case "openrouter":
+        model = createOpenRouter({ apiKey })(testModelId);
+        break;
+      default:
+        return;
+    }
+
+    await generateText({
+      model,
+      prompt: "ok",
+      maxOutputTokens: 5,
+    });
+  } catch (err: any) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `API Key validation failed for ${provider}: ${err.message || String(err)}`,
+    });
+  }
+}
 
 async function checkAndUpdateQuota(userId: string) {
   const user = await prisma.user.findUnique({
@@ -282,6 +349,8 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      await verifyApiKey(input.provider, input.apiKey, input.modelName || undefined);
+
       const { encryptedData, iv, salt } = encrypt(input.apiKey);
 
       const existing = await prisma.providerConfig.findUnique({
