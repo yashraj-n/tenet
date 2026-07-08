@@ -11,9 +11,7 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },
-  "dependencies": {
-    "@google-cloud/run": "^3.3.0"
-  },
+
   "devDependencies": {
     "oxfmt": "^0.57.0",
     "oxlint": "^1.72.0"
