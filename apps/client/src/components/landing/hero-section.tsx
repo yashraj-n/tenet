@@ -225,11 +225,7 @@ export function HeroSection() {
                 Get Started
               </Button>
             </Link>
-            <a
-              href="https://github.com/yashraj-n/aura-ai-agent"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://github.com/yashraj-n/tenet" target="_blank" rel="noopener noreferrer">
               <Button
                 size="lg"
                 variant="outline"

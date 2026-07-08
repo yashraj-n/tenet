@@ -19,7 +19,17 @@ import { Eye, EyeOff, ChevronsUpDown, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/_dashboard/dashboard/settings")({
+  head: () =>
+    getSeoMetadata({
+      title: "Settings — Tenet AI",
+      description:
+        "Configure your Tenet profile, manage API keys, and set up notification preferences.",
+      path: "/dashboard/settings",
+      noIndex: true,
+    }),
   component: ModelSettingsPage,
 });
 

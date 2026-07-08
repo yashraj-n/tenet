@@ -23,7 +23,17 @@ function AnimatedCount({ value }: { value: number }) {
   return <>{display}</>;
 }
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/_dashboard/dashboard/")({
+  head: () =>
+    getSeoMetadata({
+      title: "Project Dashboard — Tenet AI",
+      description:
+        "Manage your connected repositories, configure AI agents, and monitor automated pull requests.",
+      path: "/dashboard",
+      noIndex: true,
+    }),
   component: DashboardIndex,
 });
 

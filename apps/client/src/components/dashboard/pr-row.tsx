@@ -1,4 +1,4 @@
-import { GitPullRequest, GitBranch, ExternalLink, SearchCheck } from "lucide-react";
+import { GitPullRequest, GitBranch, SearchCheck } from "lucide-react";
 import type { PullRequest } from "@/lib/types";
 
 interface PRRowProps {
@@ -73,29 +73,17 @@ export function PRRow({ pr, onReviewTrigger }: PRRowProps) {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
         <button
           type="button"
           onClick={() => onReviewTrigger?.(pr)}
-          className="flex-1 sm:flex-initial flex items-center justify-center bg-[#eca8d6]/5 hover:bg-[#eca8d6]/15 text-[#eca8d6] border border-[#eca8d6]/20 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
+          className="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-[#eca8d6]/10 to-[#eca8d6]/5 hover:from-[#eca8d6]/25 hover:to-[#eca8d6]/15 text-[#eca8d6] border border-[#eca8d6]/30 hover:border-[#eca8d6]/60 rounded-lg px-4.5 py-2 h-9 text-xs gap-2 transition-all duration-300 hover:shadow-[0_0_20px_-3px_rgba(236,168,214,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer font-medium tracking-wide group/btn"
         >
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#eca8d6] drop-shadow-[0_0_8px_rgba(236,168,214,0.2)]">
             Code Review
           </span>
-          <SearchCheck className="w-3.5 h-3.5" />
+          <SearchCheck className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-6" />
         </button>
-
-        <a
-          href={pr.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 sm:flex-initial flex items-center justify-center bg-foreground/[0.02] hover:bg-foreground/[0.08] text-foreground border border-border/80 rounded px-3 py-1.5 h-8.5 text-xs gap-1.5 transition-all duration-200 cursor-pointer"
-        >
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors duration-200">
-            View PR
-          </span>
-          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-[#eca8d6] transition-colors" />
-        </a>
       </div>
     </div>
   );

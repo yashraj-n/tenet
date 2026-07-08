@@ -4,7 +4,16 @@ import { Github, ArrowLeft } from "lucide-react";
 
 import { authClient } from "#/lib/auth-client";
 
+import { getSeoMetadata } from "#/lib/seo";
+
 export const Route = createFileRoute("/login")({
+  head: () =>
+    getSeoMetadata({
+      title: "Sign In to Tenet — AI Agent for GitHub Issues",
+      description:
+        "Sign in to Tenet with GitHub to start automatically triaging issues, generating pull requests, and resolving bugs in your repositories.",
+      path: "/login",
+    }),
   component: LoginComponent,
 });
 
@@ -73,7 +82,7 @@ function LoginComponent() {
         <p className="text-center text-xs text-muted-foreground/50 mt-6">
           Open source &middot;{" "}
           <a
-            href="https://github.com/yashraj-n/aura-ai-agent"
+            href="https://github.com/yashraj-n/tenet"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-foreground transition-colors"

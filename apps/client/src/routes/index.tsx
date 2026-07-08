@@ -8,7 +8,18 @@ import { SecuritySection } from "@/components/landing/security-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { FooterSection } from "@/components/landing/footer-section";
 
-export const Route = createFileRoute("/")({ component: Home });
+import { getSeoMetadata } from "#/lib/seo";
+
+export const Route = createFileRoute("/")({
+  head: () =>
+    getSeoMetadata({
+      title: "Tenet — Automate GitHub Issue Resolution with AI",
+      description:
+        "Tenet is an open-source AI agent that connects to your GitHub repositories, diagnoses issues, and writes pull requests automatically to resolve them.",
+      path: "/",
+    }),
+  component: Home,
+});
 
 function Home() {
   return (
