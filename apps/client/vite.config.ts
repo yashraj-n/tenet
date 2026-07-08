@@ -11,27 +11,11 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),
-    nitro({
-      rollupConfig: {
-        external: ["@google-cloud/run", "google-gax"],
-      },
-      rolldownConfig: {
-        external: ["@google-cloud/run", "google-gax"],
-      },
-      traceDeps: ["@google-cloud/run*", "google-gax*"],
-    }),
+    nitro(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
   ],
-  ssr: {
-    external: ["@google-cloud/run", "google-gax"],
-  },
-  build: {
-    rollupOptions: {
-      external: ["@google-cloud/run", "google-gax"],
-    },
-  },
   server: {
     allowedHosts: ["crucial-decent-bluejay.ngrok-free.app"],
   },
