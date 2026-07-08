@@ -18,7 +18,6 @@ const config = defineConfig({
       rolldownConfig: {
         external: ["@google-cloud/run", "google-gax"],
       },
-      traceDeps: ["!@google-cloud/run", "!google-gax"],
     }),
     tailwindcss(),
     tanstackStart(),
