@@ -19,11 +19,7 @@ Comment `/tenet-build` on an issue and it explores the repo, writes the fix, the
 
 <div align="center">
 
-<a href="https://yashraj-n.github.io/tenet/assets/tenet-demo.mp4">
-  <img src="assets/tenet-demo-poster.jpg" alt="Watch the Tenet demo" width="720" />
-</a>
-
-<sub>▶ Click to watch the demo</sub>
+https://github.com/user-attachments/assets/a7d8b62e-65cb-4b47-95f3-6e308fcc37a6
 
 </div>
 
