@@ -19,7 +19,7 @@ Comment `/tenet-build` on an issue and it explores the repo, writes the fix, the
 
 <div align="center">
 
-<video src="assets/tenet-demo.mp4" controls width="720"></video>
+<video src="https://github.com/yashraj-n/tenet/raw/refs/heads/master/assets/tenet-demo.mp4" controls width="720"></video>
 
 </div>
 
@@ -105,7 +105,7 @@ cd apps/bot && bun dev
 
 ## Configuration
 
-### Agent — `apps/agent/.env`
+### Agent: `apps/agent/.env`
 
 Copy [`apps/agent/.env.example`](apps/agent/.env.example) and fill in:
 
@@ -124,7 +124,7 @@ At runtime on Cloud Run the agent also receives per-job context (`REPO_NAME`, `I
 `PR_NUMBER`, `OWNER_NAME`, `AGENT_MODE`, `LLM_API_KEY`, `CALLBACK_URL`, `SECRET_WEBHOOK_KEY`,
 `RUN_ID`, `CUSTOM_INSTRUCTIONS`) injected by the client, so you don't set these by hand.
 
-### Client — `apps/client/.env.local`
+### Client: `apps/client/.env.local`
 
 | Variable | Description |
 |----------|-------------|
