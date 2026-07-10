@@ -9,13 +9,7 @@ import { nitro } from "nitro/vite";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  plugins: [
-    devtools(),
-    nitro(),
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
+  plugins: [devtools(), nitro(), tailwindcss(), tanstackStart(), viteReact()],
   server: {
     allowedHosts: ["crucial-decent-bluejay.ngrok-free.app"],
   },

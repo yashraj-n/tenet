@@ -18,6 +18,8 @@ export const env = createEnv({
     APP_ID: z.string(),
     PRIVATE_KEY: z.string(),
     ENCRYPTION_SECRET: z.string(),
+    UPSTASH_REDIS_REST_URL: z.string().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   },
   clientPrefix: "VITE_",
   client: {
@@ -40,6 +42,8 @@ export const env = createEnv({
     APP_ID: process.env.APP_ID,
     PRIVATE_KEY: process.env.PRIVATE_KEY,
     ENCRYPTION_SECRET: process.env.ENCRYPTION_SECRET,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   },
   emptyStringAsUndefined: true,
 });

@@ -1,8 +1,9 @@
 import { App } from "octokit";
 import { env } from "#/env";
 import type { Repo } from "./types";
+import { getCached, setCached } from "./redis.server";
 
-const REPOS_CACHE_TTL_MS = 60_000;
+const REPOS_CACHE_TTL_MS = 90_000;
 
 type InstalledRepo = { repo: any; installationId: number };
 
@@ -45,6 +46,12 @@ function toRepo(repo: any, counts?: { issues: number; pulls: number }): Repo {
 }
 
 async function getInstalledRepoEntries() {
+  const redisCacheKey = "tenet:cache:installed-repos";
+  const cachedFromRedis = await getCached<InstalledRepo[]>(redisCacheKey);
+  if (cachedFromRedis) {
+    return cachedFromRedis;
+  }
+
   if (installedReposCache && installedReposCache.expiresAt > Date.now()) {
     return installedReposCache.entries;
   }
@@ -59,16 +66,23 @@ async function getInstalledRepoEntries() {
         per_page: 100,
       });
 
-      return data.repositories.map((repo) => ({ repo, installationId: installation.id }));
+      return data.repositories.map((repo: any) => ({ repo, installationId: installation.id }));
     }),
   );
 
   const entries = reposByInstallation.flat();
   installedReposCache = { entries, expiresAt: Date.now() + REPOS_CACHE_TTL_MS };
+  await setCached(redisCacheKey, entries, 90);
   return entries;
 }
 
 async function getRepoCounts(octokit: any, fullName: string) {
+  const redisCacheKey = `tenet:cache:repo-counts:${fullName}`;
+  const cachedFromRedis = await getCached<{ issues: number; pulls: number }>(redisCacheKey);
+  if (cachedFromRedis) {
+    return cachedFromRedis;
+  }
+
   const cached = repoCountsCache.get(fullName);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.counts;
@@ -90,6 +104,7 @@ async function getRepoCounts(octokit: any, fullName: string) {
     pulls: pullsSearch.data.total_count,
   };
   repoCountsCache.set(fullName, { counts, expiresAt: Date.now() + REPOS_CACHE_TTL_MS });
+  await setCached(redisCacheKey, counts, 90);
   return counts;
 }
 

@@ -11,6 +11,7 @@ import {
   getRepo,
   getDashboardStats,
 } from "../../lib/github-app.server";
+import { getCached, setCached } from "../../lib/redis.server";
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogle } from "@ai-sdk/google";
@@ -169,6 +170,10 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
+      const cacheKey = `tenet:cache:issues:${input.owner}:${input.repo}:${input.page}:${input.limit}`;
+      const cached = await getCached<any>(cacheKey);
+      if (cached) return cached;
+
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
 
       const [{ data: searchResult }, { data: issues }] = await Promise.all([
@@ -188,9 +193,9 @@ export const appRouter = createTRPCRouter({
       ]);
 
       const items = issues
-        .filter((issue) => !issue.pull_request)
-        .map((issue) => {
-          const labels = (issue.labels || []).map((lbl) => {
+        .filter((issue: any) => !issue.pull_request)
+        .map((issue: any) => {
+          const labels = (issue.labels || []).map((lbl: any) => {
             const name = typeof lbl === "string" ? lbl : lbl.name || "";
             const lowercaseName = name.toLowerCase();
             let color = "bg-blue-500/10 text-blue-400 border-blue-500/20";
@@ -216,7 +221,9 @@ export const appRouter = createTRPCRouter({
           };
         });
 
-      return { items, total: searchResult.total_count };
+      const result = { items, total: searchResult.total_count };
+      await setCached(cacheKey, result, 90);
+      return result;
     }),
 
   getPullRequests: protectedProcedure
@@ -229,6 +236,10 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
+      const cacheKey = `tenet:cache:pulls:${input.owner}:${input.repo}:${input.page}:${input.limit}`;
+      const cached = await getCached<any>(cacheKey);
+      if (cached) return cached;
+
       const octokit = await getInstallationOctokitForRepo(input.owner, input.repo);
 
       const [{ data: searchResult }, { data: pulls }] = await Promise.all([
@@ -247,8 +258,8 @@ export const appRouter = createTRPCRouter({
         }),
       ]);
 
-      const items = pulls.map((pr) => {
-        const labels = (pr.labels || []).map((lbl) => {
+      const items = pulls.map((pr: any) => {
+        const labels = (pr.labels || []).map((lbl: any) => {
           const name = typeof lbl === "string" ? lbl : lbl.name || "";
           const lowercaseName = name.toLowerCase();
           let color = "bg-blue-500/10 text-blue-400 border-blue-500/20";
@@ -277,7 +288,9 @@ export const appRouter = createTRPCRouter({
         };
       });
 
-      return { items, total: searchResult.total_count };
+      const result = { items, total: searchResult.total_count };
+      await setCached(cacheKey, result, 90);
+      return result;
     }),
 
   getAvailableModels: protectedProcedure.query(async () => {
